@@ -22,6 +22,7 @@
         let inactivityTimer;
         let elapsedSeconds;
         let originalPageTitle = document.title;
+        let originalLocationHref = window.location.href;
 
         /* FUNCTIONS */
         let clearStorage = function () {
@@ -161,7 +162,9 @@
             stopInactivityTimer();
             deleteSessionStartTime();
 
-            window.location.href = (logoutUrl) ? logoutUrl : INACTIVITY_LOGOUT_URL;
+            if (window.location.href == originalLocationHref) {
+                window.location.href = logoutUrl || INACTIVITY_LOGOUT_URL;
+            }
         }
 
         let activityHandler = function (event) {

@@ -1,0 +1,21 @@
+<!doctype html>
+
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>Idle Hands</title>
+    </head>
+    <body>
+        <script src="assets/lockr-0.8.5/lockr.js"></script>
+        <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha256-4+XzXVhsDmqanXGHaHvgh1gMQKX40OUvDEBTu8JcmNs=" crossorigin="anonymous"></script>
+        <script src="../jquery-idle-hands.js"></script>
+        <script>
+            $().idleHands({
+                'lockr_prefix': 'my_application_',
+                'maxInactivitySeconds': 15,
+                'inactivityTimerDisplaySeconds': 10,
+                'inactivity_logout_url': 'https://www.google.com'
+            });
+        </script>
+    </body>
+</html>

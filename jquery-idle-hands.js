@@ -1,31 +1,258 @@
 (function ($) {
     $.fn.idleHands = function (config) {
-        /* CONSTANTS */
-        const LOCKR_PREFIX = config.lockrPrefix || 'idle_hands_';
-        const MAX_INACTIVITY_SECONDS = config.maxInactivitySeconds || 600;
-        const INACTIVITY_LOGOUT_URL = config.inactivityLogoutUrl || 'https://www.google.com';
-        const MANUAL_LOGOUT_URL = config.manualLogoutUrl || INACTIVITY_LOGOUT_URL;
-        const INACTIVITY_TIMER_DISPLAY_SECONDS = config.inactivityTimerDisplaySeconds || 45;
-        const SECONDS_BETWEEN_HEARTBEATS = config.secondsBetweenHeartbeats || 30;
-        const HEARTBEAT_URL = config.heartbeatUrl || window.location.href;
-        const DIALOG_ID = config.dialogId || 'idle-hands';
+        /* -------------------------------------------------- */
+        // CONFIG CONSTANTS
+        /* -------------------------------------------------- */
+
+        const ACTIVITY_EVENTS = config.activityEvents || 'click keypress scroll wheel mousewheel mousemove';
+        const APPLICATION_ID = config.applicationId || 'idle-hands';
         const DIALOG_MESSAGE = config.dialogMessage || 'Your session is about to expire due to inactivity.';
         const DIALOG_TIME_REMAINING_LABEL = config.dialogTimeRemainingLabel || 'Time remaining';
         const DIALOG_TITLE = config.dialogTitle || 'Session Expiration Warning';
-        const ACTIVITY_EVENTS = config.activityEvents || 'click keypress scroll wheel mousewheel mousemove';
+        const HEARTBEAT_URL = config.heartbeatUrl || window.location.href;
+        const HEART_RATE = config.heartRate || 300;
+        const INACTIVITY_LOGOUT_URL = config.inactivityLogoutUrl || 'https://www.google.com';
+        const INACTIVITY_DIALOG_DURATION = config.inactivityDialogDuration || 45;
+        const LOCAL_STORAGE_PREFIX = config.localStoragePrefix || APPLICATION_ID;
+        const MANUAL_LOGOUT_URL = config.manualLogoutUrl || INACTIVITY_LOGOUT_URL;
+        const MAX_INACTIVITY_SECONDS = config.maxInactivitySeconds || 600;
 
-        /* VARIABLES */
+        /* -------------------------------------------------- */
+        // GLOBAL VARIABLES
+        /* -------------------------------------------------- */
+
         let sessionStartTime;
         let heartbeatTimer;
         let inactivityTimer;
-        let elapsedSeconds;
         let originalPageTitle = document.title;
+        let localStorage = {};
 
-        /* FUNCTIONS */
-        let clearStorage = function () {
-            alert('here');
+        /* -------------------------------------------------- */
+        // HEARTBEAT
+        /* -------------------------------------------------- */
+
+        /**
+         * Makes an AJAX request to the provided URL.
+         *
+         * This is intended to be used as a "keep-alive" method to prevent users
+         * sessions from expiring before the Idle Hands dialog appears.
+         *
+         * @param string heartbeat_url
+         */
+        let heartbeat = function (heartbeat_url) {
+            $.get(heartbeat_url);
         }
 
+        /**
+         * Starts the heartbeat at a rate of once every HEART_RATE number of
+         * seconds.
+         */
+        let startHeartbeatTimer = function () {
+            heartbeatTimer = setInterval(
+                heartbeat(HEARTBEAT_URL),
+                (HEART_RATE * 1000)
+            );
+        }
+
+        /**
+         * Stops the heartbeat. x_x
+         */
+        let stopHeartbeatTimer = function () {
+            clearInterval(heartbeatTimer);
+        }
+
+        /* -------------------------------------------------- */
+        // CHECK INACTIVITY
+        /* -------------------------------------------------- */
+
+        /**
+         * Checks how long the user has been inactive for and either logs the user
+         * out, displays the inactivity dialog, or hides the inactivity dialog.
+         */
+        let checkInactivity = function () {
+            let sessionStartTime = getSessionStartTime();
+            let elapsedSeconds = Math.floor((Date.now() - sessionStartTime) / 1000);
+            let remainingSeconds = (MAX_INACTIVITY_SECONDS - elapsedSeconds);
+            let secondsLabel = (remainingSeconds == 1) ? 'second' : 'seconds';
+
+            // Update the dialog timer
+
+            $('#' + APPLICATION_ID + '-time-remaining').text(
+                remainingSeconds + ' ' + secondsLabel
+            );
+
+            // If we are over our inactivity limit or the session has been cleared,
+            // log the user out; otherwise, if we are within the inactivity dialog
+            // duration, stop tracking activity and show the dialog; otherwise,
+            // hide the dialog.
+
+            if ((elapsedSeconds > MAX_INACTIVITY_SECONDS) || !sessionStartTime) {
+                logout(INACTIVITY_LOGOUT_URL);
+            } else if (remainingSeconds <= INACTIVITY_DIALOG_DURATION) {
+                $(document).off(ACTIVITY_EVENTS, activityHandler);
+
+                showDialog();
+            } else {
+                hideDialog();
+            }
+        }
+
+        /**
+         * Starts checking for inactivity every second.
+         */
+        let startInactivityTimer = function () {
+            setSessionStartTime(Date.now());
+
+            inactivityTimer = setInterval(checkInactivity, 1000);
+        };
+
+        /**
+         * Stops checking for inactivity.
+         */
+        let stopInactivityTimer = function () {
+            clearInterval(inactivityTimer);
+        }
+
+        /**
+         * Stops checking inactivity and starts again with a new session start
+         * time.
+         */
+        let restartInactivityTimer = function () {
+            stopInactivityTimer();
+            startInactivityTimer();
+        }
+
+        /**
+         * An event handler intended to fire off when user activity is detected.
+         *
+         * @param Event event
+         */
+        let activityHandler = function (event) {
+            restartInactivityTimer();
+        }
+
+        /* -------------------------------------------------- */
+        // LOCAL STORAGE
+        /* -------------------------------------------------- */
+
+        /**
+         * Set the wrapper used to manage local storage.
+         */
+         let initializeLocalStorage = function () {
+            let config = {
+              namespace: LOCAL_STORAGE_PREFIX,
+              keyDelimiter: '.'
+            };
+
+            localStorage.basil = new window.Basil(config);
+         }
+
+         /**
+          * Set a value in local storage.
+          *
+          * @param String key
+          * @param mixed  value
+          */
+         localStorage.set = function (key, value) {
+            localStorage.basil.set(key, value);
+         }
+
+         /**
+          * Retrieve a value from local storage.
+          *
+          * @param String key
+          *
+          * @return mixed
+          */
+         localStorage.get = function (key) {
+            return localStorage.basil.get(key);
+         }
+
+         /**
+          * Removes a value from local storage by key.
+          *
+          * @param String key
+          */
+         localStorage.remove = function (key) {
+            localStorage.basil.remove(key);
+         }
+
+         /**
+          * Clear all values from local storage.
+          */
+         localStorage.flush = function () {
+            localStorage.basil.reset();
+          }
+
+        /**
+         * Sets the session start time in local storage.
+         *
+         * @param Number time
+         */
+        let setSessionStartTime = function (time) {
+            localStorage.set('sessionStartTime', time);
+
+            sessionStartTime = time;
+        }
+
+        /**
+         * Retrieves the session start time from local storage.
+         *
+         * @return Number
+         */
+        let getSessionStartTime = function () {
+            return localStorage.get('sessionStartTime');
+        }
+
+        /**
+         * Deletes the session start time from local storage.
+         */
+        let deleteSessionStartTime = function () {
+            localStorage.remove('sessionStartTime');
+        }
+
+        /**
+         * Sets the logout URL in local storage.
+         *
+         * @return String
+         */
+         let setLogoutUrl = function (logoutUrl) {
+            localStorage.set('logoutUrl', logoutUrl);
+         }
+
+        /**
+         * Retrieves the logout URL from local storage.
+         *
+         * @return String
+         */
+         let getLogoutUrl = function () {
+            return localStorage.get('logoutUrl');
+         }
+
+         /**
+          * Clears values saved in local storage.
+          */
+          let flushLocalStorage = function () {
+            localStorage.flush();
+          }
+
+          /**
+           * Sets the prefix used when creating local storage keys.
+           */
+          let setLocalStoragePrefix = function () {
+            localStorage.prefix = LOCAL_STORAGE_PREFIX;
+          }
+
+        /* -------------------------------------------------- */
+        // DIALOG
+        /* -------------------------------------------------- */
+
+        /**
+         * Creates the dialog window and attaches it to the body element.
+         *
+         * Uses inline styles and IDs whenever possible to prevent conflicts with
+         * external libraries and/or style sheets.
+         */
         let createDialog = function () {
             let dialogContainerStyle = 'display: none;' +
                                        'z-index: 1000;';
@@ -71,112 +298,99 @@
                                     'padding: 5px 0;' +
                                     'margin: 1% 5%;';
 
-            let overlay = '<div style="' + overlayStyle + '" id="' +  DIALOG_ID + '-overlay"></div>';
+            let overlay = '<div style="' + overlayStyle + '" id="' +  APPLICATION_ID + '-overlay"></div>';
 
-            let dialogTitle = '<div style="' + dialogTitleStyle + '" id="' + DIALOG_ID + '-dialog-title">' +
+            let dialogTitle = '<div style="' + dialogTitleStyle + '" id="' + APPLICATION_ID + '-dialog-title">' +
                               DIALOG_TITLE +
                               '</div>';
 
-            let dialogMessage = '<div style="' + dialogMessageContainerStyle + '" id="' + DIALOG_ID + '-message-container">' +
-                                '<p id="' + DIALOG_ID + '-message">' + DIALOG_MESSAGE + '</p>' +
-                                '<p>' + DIALOG_TIME_REMAINING_LABEL + ': <span id="' + DIALOG_ID + '-time-remaining"></span></p>' +
+            let dialogMessage = '<div style="' + dialogMessageContainerStyle + '" id="' + APPLICATION_ID + '-message-container">' +
+                                '<p id="' + APPLICATION_ID + '-message">' + DIALOG_MESSAGE + '</p>' +
+                                '<p>' + DIALOG_TIME_REMAINING_LABEL + ': <span id="' + APPLICATION_ID + '-time-remaining"></span></p>' +
                                 '</div>';
 
-            let dialog = '<div style="' + dialogStyle + '" id="' + DIALOG_ID + '-dialog">' +
+            let dialog = '<div style="' + dialogStyle + '" id="' + APPLICATION_ID + '-dialog">' +
                          dialogTitle +
                          dialogMessage +
                          '<hr style="' + dialogHrStyle + '" />' +
-                         '<button style="' + dialogButtonStyle + '" id="' + DIALOG_ID + '-stay-logged-in-button">Stay Logged In</button>' +
-                         '<button style="' + dialogButtonStyle + '" id="' + DIALOG_ID + '-logout-button">Logout Now</button>' +
+                         '<button style="' + dialogButtonStyle + '" id="' + APPLICATION_ID + '-stay-logged-in-button">Stay Logged In</button>' +
+                         '<button style="' + dialogButtonStyle + '" id="' + APPLICATION_ID + '-logout-button">Logout Now</button>' +
                          '</div>';
 
-            let dialogContainer = '<div style="' + dialogContainerStyle  + '" id="' + DIALOG_ID + '">' +
+            let dialogContainer = '<div style="' + dialogContainerStyle  + '" id="' + APPLICATION_ID + '">' +
                                    overlay +
                                    dialog +
                                    '</div>';
 
             $('body').append(dialogContainer);
 
-            $('#' + DIALOG_ID + '-stay-logged-in-button').on('click', function (event) {
+            // Stay Logged In button
+
+            $('#' + APPLICATION_ID + '-stay-logged-in-button').on('click', function (event) {
                 event.stopPropagation();
 
                 stayLoggedIn();
             });
 
-            $('#' + DIALOG_ID + '-logout-button').on('click', function (event) {
+            // Logout button
+
+            $('#' + APPLICATION_ID + '-logout-button').on('click', function (event) {
                 event.stopPropagation();
 
                 logout(MANUAL_LOGOUT_URL);
             });
         }
 
-        let setSessionStartTime = function (time) {
-            Lockr.set('sessionStartTime', time);
-            sessionStartTime = time;
+        /**
+         * Shows the dialog window.
+         */
+        let showDialog = function () {
+            document.title = DIALOG_TITLE;
+
+            // Puts focus on the Stay Logged In button
+
+            $('#' + APPLICATION_ID).show(function () {
+                $('#' + APPLICATION_ID + ' button').first().focus();
+            });
         }
 
-        let getSessionStartTime = function () {
-            return Lockr.get('sessionStartTime');
+        /**
+         * Hides the dialog window.
+         */
+        let hideDialog = function () {
+            document.title = originalPageTitle;
+            $('#' + APPLICATION_ID ).hide();
         }
 
-        let deleteSessionStartTime = function () {
-            return Lockr.rm('sessionStartTime');
-        }
-
-        let startInactivityTimer = function () {
-            setSessionStartTime($.now());
-
-            inactivityTimer = setInterval(checkInactivity, 1000);
-        };
-
-        let startHeartbeatTimer = function () {
-            heartbeatTimer = setInterval(heartbeat, (SECONDS_BETWEEN_HEARTBEATS * 1000));
-        }
-
-        let checkInactivity = function () {
-            elapsedSeconds = Math.floor(($.now() - getSessionStartTime()) / 1000);
-
-            let remainingSeconds = (MAX_INACTIVITY_SECONDS - elapsedSeconds);
-            let secondsLabel = (remainingSeconds == 1) ? 'second' : 'seconds';
-
-            $('#' + DIALOG_ID + '-time-remaining').text(remainingSeconds + ' ' + secondsLabel);
-
-            if ((elapsedSeconds > MAX_INACTIVITY_SECONDS) || !Lockr.get('sessionStartTime')) {
-                logout(INACTIVITY_LOGOUT_URL);
-            } else if ((MAX_INACTIVITY_SECONDS - elapsedSeconds) <= INACTIVITY_TIMER_DISPLAY_SECONDS) {
-                $(document).off(ACTIVITY_EVENTS, activityHandler);
-
-                showDialog();
-            } else {
-                hideDialog();
-            }
-        }
-
+        /**
+         * Logs the user out and redirects them to the logout URL.
+         *
+         * This checks local storage for a logout URL and redirects there; if
+         * one was not previously set, this function sets it using the logoutURL
+         * parameter before redirecting.
+         *
+         * @param String logoutUrl
+         */
         let logout = function (logoutUrl) {
-            if (!Lockr.get('logoutUrl')) {
-                Lockr.set('logoutUrl', logoutUrl);
+            if (!getLogoutUrl()) {
+                setLogoutUrl(logoutUrl);
             }
 
             stopHeartbeatTimer();
             stopInactivityTimer();
             deleteSessionStartTime();
 
-            $('#' + DIALOG_ID + '-dialog').hide();
+            $('#' + APPLICATION_ID + '-dialog').hide();
 
-            window.location.href = Lockr.get('logoutUrl');
+            window.location.href = getLogoutUrl();
         }
 
-        let restartInactivityTimer = function () {
-            stopInactivityTimer();
-            startInactivityTimer();
-        }
-
-        let activityHandler = function (event) {
-            restartInactivityTimer();
-        }
-
+        /**
+         * Clears local storage and resets the inactivity timer to keep the user
+         * logged in as if they just loaded the page.
+         */
         let stayLoggedIn = function () {
-            Lockr.flush();
+            flushLocalStorage();
 
             restartInactivityTimer();
 
@@ -185,35 +399,17 @@
             hideDialog();
         }
 
-        let stopInactivityTimer = function () {
-            clearInterval(inactivityTimer);
-        }
+        /* -------------------------------------------------- */
+        // START IDLE HANDS
+        /* -------------------------------------------------- */
 
-        let heartbeat = function () {
-            $.get(HEARTBEAT_URL);
-        }
-
-        let stopHeartbeatTimer = function () {
-            clearInterval(heartbeatTimer);
-        }
-
-        let showDialog = function () {
-            document.title = DIALOG_TITLE;
-
-            $('#' + DIALOG_ID).show(function () {
-                $('#' + DIALOG_ID + ' button').first().focus();
-            });
-        }
-
-        let hideDialog = function () {
-            document.title = originalPageTitle;
-            $('#' + DIALOG_ID ).hide();
-        }
-
+        /**
+         * Initializes Idle Hands.
+         */
         let initialize = function () {
-            Lockr.prefix = LOCKR_PREFIX;
+            initializeLocalStorage();
 
-            Lockr.flush();
+            flushLocalStorage();
 
             $(document).on(ACTIVITY_EVENTS, activityHandler);
 

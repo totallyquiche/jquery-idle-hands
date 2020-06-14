@@ -4,18 +4,18 @@
         // CONFIG CONSTANTS
         /* -------------------------------------------------- */
 
-        const LOCKR_PREFIX = config.lockrPrefix || 'idle_hands_';
-        const MAX_INACTIVITY_SECONDS = config.maxInactivitySeconds || 600;
-        const INACTIVITY_LOGOUT_URL = config.inactivityLogoutUrl || 'https://www.google.com';
-        const MANUAL_LOGOUT_URL = config.manualLogoutUrl || INACTIVITY_LOGOUT_URL;
-        const INACTIVITY_TIMER_DISPLAY_SECONDS = config.inactivityTimerDisplaySeconds || 45;
-        const SECONDS_BETWEEN_HEARTBEATS = config.secondsBetweenHeartbeats || 30;
-        const HEARTBEAT_URL = config.heartbeatUrl || window.location.href;
+        const ACTIVITY_EVENTS = config.activityEvents || 'click keypress scroll wheel mousewheel mousemove';
         const DIALOG_ID = config.dialogId || 'idle-hands';
         const DIALOG_MESSAGE = config.dialogMessage || 'Your session is about to expire due to inactivity.';
         const DIALOG_TIME_REMAINING_LABEL = config.dialogTimeRemainingLabel || 'Time remaining';
         const DIALOG_TITLE = config.dialogTitle || 'Session Expiration Warning';
-        const ACTIVITY_EVENTS = config.activityEvents || 'click keypress scroll wheel mousewheel mousemove';
+        const HEARTBEAT_URL = config.heartbeatUrl || window.location.href;
+        const INACTIVITY_LOGOUT_URL = config.inactivityLogoutUrl || 'https://www.google.com';
+        const INACTIVITY_TIMER_DISPLAY_SECONDS = config.inactivityTimerDisplaySeconds || 45;
+        const LOCKR_PREFIX = config.lockrPrefix || 'idle_hands_';
+        const MANUAL_LOGOUT_URL = config.manualLogoutUrl || INACTIVITY_LOGOUT_URL;
+        const MAX_INACTIVITY_SECONDS = config.maxInactivitySeconds || 600;
+        const SECONDS_BETWEEN_HEARTBEATS = config.secondsBetweenHeartbeats || 30;
 
         /* -------------------------------------------------- */
         // GLOBAL VARIABLES

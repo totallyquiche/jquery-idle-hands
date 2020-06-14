@@ -31,14 +31,32 @@
         // HEARTBEAT
         /* -------------------------------------------------- */
 
-        let heartbeat = function () {
-            $.get(HEARTBEAT_URL);
+        /**
+         * Makes an AJAX request to the provided URL.
+         *
+         * This is intended to be used as a "keep-alive" method to prevent users
+         * sessions from expiring before the Idle Hands dialog appears.
+         *
+         * @param string heartbeat_url
+         */
+        let heartbeat = function (heartbeat_url) {
+            $.get(heartbeat_url);
         }
 
+        /**
+         * Starts the heartbeat at a rate of once every HEART_RATE number of
+         * seconds.
+         */
         let startHeartbeatTimer = function () {
-            heartbeatTimer = setInterval(heartbeat, (HEART_RATE * 1000));
+            heartbeatTimer = setInterval(
+                heartbeat(HEARTBEAT_URL),
+                (HEART_RATE * 1000)
+            );
         }
 
+        /**
+         * Stops the heartbeat. x_x
+         */
         let stopHeartbeatTimer = function () {
             clearInterval(heartbeatTimer);
         }
@@ -47,17 +65,25 @@
         // CHECK INACTIVITY
         /* -------------------------------------------------- */
 
+        /**
+         * Checks how long the user has been inactive for and either logs the user
+         * out, displays the inactivity dialog, or hides the inactivity dialog.
+         */
         let checkInactivity = function () {
-            elapsedSeconds = Math.floor(($.now() - getSessionStartTime()) / 1000);
+            elapsedSeconds = Math.floor(
+                ($.now() - getSessionStartTime()) / 1000
+            );
 
             let remainingSeconds = (MAX_INACTIVITY_SECONDS - elapsedSeconds);
             let secondsLabel = (remainingSeconds == 1) ? 'second' : 'seconds';
 
-            $('#' + APPLICATION_ID + '-time-remaining').text(remainingSeconds + ' ' + secondsLabel);
+            $('#' + APPLICATION_ID + '-time-remaining').text(
+                remainingSeconds + ' ' + secondsLabel
+            );
 
             if ((elapsedSeconds > MAX_INACTIVITY_SECONDS) || !Lockr.get('sessionStartTime')) {
                 logout(INACTIVITY_LOGOUT_URL);
-            } else if ((MAX_INACTIVITY_SECONDS - elapsedSeconds) <= INACTIVITY_DIALOG_DURATION) {
+            } else if (remainingSeconds <= INACTIVITY_DIALOG_DURATION) {
                 $(document).off(ACTIVITY_EVENTS, activityHandler);
 
                 showDialog();
@@ -66,21 +92,36 @@
             }
         }
 
+        /**
+         * Starts checking for inactivity every second.
+         */
         let startInactivityTimer = function () {
             setSessionStartTime($.now());
 
             inactivityTimer = setInterval(checkInactivity, 1000);
         };
 
+        /**
+         * Stops checking for inactivity.
+         */
         let stopInactivityTimer = function () {
             clearInterval(inactivityTimer);
         }
 
+        /**
+         * Stops checking inactivity and starts again with a new session start
+         * time.
+         */
         let restartInactivityTimer = function () {
             stopInactivityTimer();
             startInactivityTimer();
         }
 
+        /**
+         * An event handler intended to fire off when user activity is detected.
+         *
+         * @param Event event
+         */
         let activityHandler = function (event) {
             restartInactivityTimer();
         }
@@ -89,23 +130,40 @@
         // STORAGE
         /* -------------------------------------------------- */
 
+        /**
+         * Sets the session start time in local storage.
+         *
+         * @param Number time
+         */
         let setSessionStartTime = function (time) {
             Lockr.set('sessionStartTime', time);
+
             sessionStartTime = time;
         }
 
+        /**
+         * Retrieves the session start time from local storage.
+         *
+         * @return Number
+         */
         let getSessionStartTime = function () {
             return Lockr.get('sessionStartTime');
         }
 
+        /**
+         * Deletes the session start time from local storage.
+         */
         let deleteSessionStartTime = function () {
-            return Lockr.rm('sessionStartTime');
+            Lockr.rm('sessionStartTime');
         }
 
         /* -------------------------------------------------- */
         // DIALOG
         /* -------------------------------------------------- */
 
+        /**
+         * Creates the dialog window and attaches it to the body element.
+         */
         let createDialog = function () {
             let dialogContainerStyle = 'display: none;' +
                                        'z-index: 1000;';
@@ -190,6 +248,9 @@
             });
         }
 
+        /**
+         * Shows the dialog window.
+         */
         let showDialog = function () {
             document.title = DIALOG_TITLE;
 
@@ -198,11 +259,23 @@
             });
         }
 
+        /**
+         * Hides the dialog window.
+         */
         let hideDialog = function () {
             document.title = originalPageTitle;
             $('#' + APPLICATION_ID ).hide();
         }
 
+        /**
+         * Logs the user out and redirects them to the logout URL.
+         *
+         * This checks local storage for a logout URL and redirects there; if
+         * one was not previously set, this function sets it using the logoutURL
+         * parameter before redirecting.
+         *
+         * @param String logoutUrl
+         */
         let logout = function (logoutUrl) {
             if (!Lockr.get('logoutUrl')) {
                 Lockr.set('logoutUrl', logoutUrl);
@@ -217,6 +290,10 @@
             window.location.href = Lockr.get('logoutUrl');
         }
 
+        /**
+         * Clears local storage and resets the inactivity timer to keep the user
+         * logged in as if they just loaded the page.
+         */
         let stayLoggedIn = function () {
             Lockr.flush();
 
@@ -231,6 +308,9 @@
         // START IDLE HANDS
         /* -------------------------------------------------- */
 
+        /**
+         * Initializes Idle Hands.
+         */
         let initialize = function () {
             Lockr.prefix = LOCKR_PREFIX;
 

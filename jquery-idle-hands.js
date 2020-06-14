@@ -10,12 +10,12 @@
         const DIALOG_TIME_REMAINING_LABEL = config.dialogTimeRemainingLabel || 'Time remaining';
         const DIALOG_TITLE = config.dialogTitle || 'Session Expiration Warning';
         const HEARTBEAT_URL = config.heartbeatUrl || window.location.href;
+        const HEART_RATE = config.heartRate || 30;
         const INACTIVITY_LOGOUT_URL = config.inactivityLogoutUrl || 'https://www.google.com';
         const INACTIVITY_TIMER_DISPLAY_SECONDS = config.inactivityTimerDisplaySeconds || 45;
         const LOCKR_PREFIX = config.lockrPrefix || 'idle_hands_';
         const MANUAL_LOGOUT_URL = config.manualLogoutUrl || INACTIVITY_LOGOUT_URL;
         const MAX_INACTIVITY_SECONDS = config.maxInactivitySeconds || 600;
-        const SECONDS_BETWEEN_HEARTBEATS = config.secondsBetweenHeartbeats || 30;
 
         /* -------------------------------------------------- */
         // GLOBAL VARIABLES
@@ -36,7 +36,7 @@
         }
 
         let startHeartbeatTimer = function () {
-            heartbeatTimer = setInterval(heartbeat, (SECONDS_BETWEEN_HEARTBEATS * 1000));
+            heartbeatTimer = setInterval(heartbeat, (HEART_RATE * 1000));
         }
 
         let stopHeartbeatTimer = function () {

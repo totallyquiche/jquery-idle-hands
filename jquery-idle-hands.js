@@ -22,7 +22,6 @@
         let inactivityTimer;
         let elapsedSeconds;
         let originalPageTitle = document.title;
-        let originalLocationHref = window.location.href;
 
         /* FUNCTIONS */
         let clearStorage = function () {
@@ -156,23 +155,26 @@
         }
 
         let logout = function (logoutUrl) {
-            $('#' + DIALOG_ID + '-dialog').hide();
-
             stopHeartbeatTimer();
             stopInactivityTimer();
             deleteSessionStartTime();
 
-            if (window.location.href == originalLocationHref) {
-                window.location.href = logoutUrl || INACTIVITY_LOGOUT_URL;
-            }
+            $('#' + DIALOG_ID + '-dialog').hide();
+
+            window.location.href = logoutUrl || INACTIVITY_LOGOUT_URL;
+        }
+
+        let restartInactivityTimer = function () {
+            stopInactivityTimer();
+            startInactivityTimer();
         }
 
         let activityHandler = function (event) {
-            startInactivityTimer();
+            restartInactivityTimer();
         }
 
         let stayLoggedIn = function () {
-            startInactivityTimer();
+            restartInactivityTimer();
 
             $(document).on(ACTIVITY_EVENTS, activityHandler);
 

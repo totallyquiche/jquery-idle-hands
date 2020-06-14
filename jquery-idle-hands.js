@@ -124,7 +124,7 @@
         }
 
         let startInactivityTimer = function () {
-            setSessionStartTime(Date.now());
+            setSessionStartTime($.now());
 
             inactivityTimer = setInterval(checkElapsedTime, 1000);
         };
@@ -134,7 +134,7 @@
         }
 
         let checkElapsedTime = function () {
-            elapsedSeconds = Math.floor((Date.now() - getSessionStartTime()) / 1000);
+            elapsedSeconds = Math.floor(($.now() - getSessionStartTime()) / 1000);
 
             let remainingSeconds = (MAX_INACTIVITY_SECONDS - elapsedSeconds);
             let secondsLabel = (remainingSeconds == 1) ? 'second' : 'seconds';

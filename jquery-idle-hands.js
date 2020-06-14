@@ -126,14 +126,14 @@
         let startInactivityTimer = function () {
             setSessionStartTime($.now());
 
-            inactivityTimer = setInterval(checkElapsedTime, 1000);
+            inactivityTimer = setInterval(checkInactivity, 1000);
         };
 
         let startHeartbeatTimer = function () {
             heartbeatTimer = setInterval(heartbeat, (SECONDS_BETWEEN_HEARTBEATS * 1000));
         }
 
-        let checkElapsedTime = function () {
+        let checkInactivity = function () {
             elapsedSeconds = Math.floor(($.now() - getSessionStartTime()) / 1000);
 
             let remainingSeconds = (MAX_INACTIVITY_SECONDS - elapsedSeconds);

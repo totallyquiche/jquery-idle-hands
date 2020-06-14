@@ -71,7 +71,7 @@
          */
         let checkInactivity = function () {
             elapsedSeconds = Math.floor(
-                ($.now() - getSessionStartTime()) / 1000
+                (Date.now() - getSessionStartTime()) / 1000
             );
 
             let remainingSeconds = (MAX_INACTIVITY_SECONDS - elapsedSeconds);
@@ -96,7 +96,7 @@
          * Starts checking for inactivity every second.
          */
         let startInactivityTimer = function () {
-            setSessionStartTime($.now());
+            setSessionStartTime(Date.now());
 
             inactivityTimer = setInterval(checkInactivity, 1000);
         };

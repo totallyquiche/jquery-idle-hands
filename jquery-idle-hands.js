@@ -1,7 +1,5 @@
 (function ($) {
     $.fn.idleHands = function (config) {
-        config = (config) ? config : {};
-
         /* CONSTANTS */
         const LOCKR_PREFIX = config.lockrPrefix || 'idle_hands_';
         const MAX_INACTIVITY_SECONDS = config.maxInactivitySeconds || 600;

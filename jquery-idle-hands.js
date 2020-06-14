@@ -1,7 +1,5 @@
 (function ($) {
     $.fn.idleHands = function (config) {
-        config = (config) ? config : {};
-
         /* CONSTANTS */
         const LOCKR_PREFIX = config.lockrPrefix || 'idle_hands_';
         const MAX_INACTIVITY_SECONDS = config.maxInactivitySeconds || 600;
@@ -126,17 +124,17 @@
         }
 
         let startInactivityTimer = function () {
-            setSessionStartTime(Date.now());
+            setSessionStartTime($.now());
 
-            inactivityTimer = setInterval(checkElapsedTime, 1000);
+            inactivityTimer = setInterval(checkInactivity, 1000);
         };
 
         let startHeartbeatTimer = function () {
             heartbeatTimer = setInterval(heartbeat, (SECONDS_BETWEEN_HEARTBEATS * 1000));
         }
 
-        let checkElapsedTime = function () {
-            elapsedSeconds = Math.floor((Date.now() - getSessionStartTime()) / 1000);
+        let checkInactivity = function () {
+            elapsedSeconds = Math.floor(($.now() - getSessionStartTime()) / 1000);
 
             let remainingSeconds = (MAX_INACTIVITY_SECONDS - elapsedSeconds);
             let secondsLabel = (remainingSeconds == 1) ? 'second' : 'seconds';
@@ -144,7 +142,7 @@
             $('#' + DIALOG_ID + '-time-remaining').text(remainingSeconds + ' ' + secondsLabel);
 
             if ((elapsedSeconds > MAX_INACTIVITY_SECONDS) || !Lockr.get('sessionStartTime')) {
-                logout();
+                logout(INACTIVITY_LOGOUT_URL);
             } else if ((MAX_INACTIVITY_SECONDS - elapsedSeconds) <= INACTIVITY_TIMER_DISPLAY_SECONDS) {
                 $(document).off(ACTIVITY_EVENTS, activityHandler);
 
@@ -155,13 +153,17 @@
         }
 
         let logout = function (logoutUrl) {
+            if (!Lockr.get('logoutUrl')) {
+                Lockr.set('logoutUrl', logoutUrl);
+            }
+
             stopHeartbeatTimer();
             stopInactivityTimer();
             deleteSessionStartTime();
 
             $('#' + DIALOG_ID + '-dialog').hide();
 
-            window.location.href = logoutUrl || INACTIVITY_LOGOUT_URL;
+            window.location.href = Lockr.get('logoutUrl');
         }
 
         let restartInactivityTimer = function () {
@@ -174,6 +176,8 @@
         }
 
         let stayLoggedIn = function () {
+            Lockr.flush();
+
             restartInactivityTimer();
 
             $(document).on(ACTIVITY_EVENTS, activityHandler);
@@ -208,6 +212,8 @@
 
         let initialize = function () {
             Lockr.prefix = LOCKR_PREFIX;
+
+            Lockr.flush();
 
             $(document).on(ACTIVITY_EVENTS, activityHandler);
 

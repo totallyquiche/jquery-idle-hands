@@ -10,9 +10,9 @@
         const DIALOG_TIME_REMAINING_LABEL = config.dialogTimeRemainingLabel || 'Time remaining';
         const DIALOG_TITLE = config.dialogTitle || 'Session Expiration Warning';
         const HEARTBEAT_URL = config.heartbeatUrl || window.location.href;
-        const HEART_RATE = config.heartRate || 30;
+        const HEART_RATE = config.heartRate || 300;
         const INACTIVITY_LOGOUT_URL = config.inactivityLogoutUrl || 'https://www.google.com';
-        const INACTIVITY_TIMER_DISPLAY_SECONDS = config.inactivityTimerDisplaySeconds || 45;
+        const INACTIVITY_DIALOG_DURATION = config.inactivityDialogDuration || 45;
         const LOCKR_PREFIX = config.lockrPrefix || 'idle_hands_';
         const MANUAL_LOGOUT_URL = config.manualLogoutUrl || INACTIVITY_LOGOUT_URL;
         const MAX_INACTIVITY_SECONDS = config.maxInactivitySeconds || 600;
@@ -57,7 +57,7 @@
 
             if ((elapsedSeconds > MAX_INACTIVITY_SECONDS) || !Lockr.get('sessionStartTime')) {
                 logout(INACTIVITY_LOGOUT_URL);
-            } else if ((MAX_INACTIVITY_SECONDS - elapsedSeconds) <= INACTIVITY_TIMER_DISPLAY_SECONDS) {
+            } else if ((MAX_INACTIVITY_SECONDS - elapsedSeconds) <= INACTIVITY_DIALOG_DURATION) {
                 $(document).off(ACTIVITY_EVENTS, activityHandler);
 
                 showDialog();

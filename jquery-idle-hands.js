@@ -166,7 +166,7 @@
          *
          * @return String
          */
-         let getLogoutUrl = function (logoutUrl) {
+         let setLogoutUrl = function (logoutUrl) {
             Lockr.set('logoutUrl', logoutUrl);
          }
 

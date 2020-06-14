@@ -13,7 +13,7 @@
         const HEART_RATE = config.heartRate || 300;
         const INACTIVITY_LOGOUT_URL = config.inactivityLogoutUrl || 'https://www.google.com';
         const INACTIVITY_DIALOG_DURATION = config.inactivityDialogDuration || 45;
-        const LOCAL_STORAGE_PREFIX = config.localStoragePrefix || (APPLICATION_ID + '_');
+        const LOCAL_STORAGE_PREFIX = config.localStoragePrefix || APPLICATION_ID;
         const MANUAL_LOGOUT_URL = config.manualLogoutUrl || INACTIVITY_LOGOUT_URL;
         const MAX_INACTIVITY_SECONDS = config.maxInactivitySeconds || 600;
 
@@ -25,6 +25,7 @@
         let heartbeatTimer;
         let inactivityTimer;
         let originalPageTitle = document.title;
+        let localStorage = {};
 
         /* -------------------------------------------------- */
         // HEARTBEAT
@@ -131,8 +132,57 @@
         }
 
         /* -------------------------------------------------- */
-        // STORAGE
+        // LOCAL STORAGE
         /* -------------------------------------------------- */
+
+        /**
+         * Set the wrapper used to manage local storage.
+         */
+         let initializeLocalStorage = function () {
+            let config = {
+              namespace: LOCAL_STORAGE_PREFIX,
+              keyDelimiter: '.'
+            };
+
+            localStorage.basil = new window.Basil(config);
+         }
+
+         /**
+          * Set a value in local storage.
+          *
+          * @param String key
+          * @param mixed  value
+          */
+         localStorage.set = function (key, value) {
+            localStorage.basil.set(key, value);
+         }
+
+         /**
+          * Retrieve a value from local storage.
+          *
+          * @param String key
+          *
+          * @return mixed
+          */
+         localStorage.get = function (key) {
+            return localStorage.basil.get(key);
+         }
+
+         /**
+          * Removes a value from local storage by key.
+          *
+          * @param String key
+          */
+         localStorage.remove = function (key) {
+            localStorage.basil.remove(key);
+         }
+
+         /**
+          * Clear all values from local storage.
+          */
+         localStorage.flush = function () {
+            localStorage.basil.reset();
+          }
 
         /**
          * Sets the session start time in local storage.
@@ -140,7 +190,7 @@
          * @param Number time
          */
         let setSessionStartTime = function (time) {
-            Lockr.set('sessionStartTime', time);
+            localStorage.set('sessionStartTime', time);
 
             sessionStartTime = time;
         }
@@ -151,14 +201,14 @@
          * @return Number
          */
         let getSessionStartTime = function () {
-            return Lockr.get('sessionStartTime');
+            return localStorage.get('sessionStartTime');
         }
 
         /**
          * Deletes the session start time from local storage.
          */
         let deleteSessionStartTime = function () {
-            Lockr.rm('sessionStartTime');
+            localStorage.remove('sessionStartTime');
         }
 
         /**
@@ -167,7 +217,7 @@
          * @return String
          */
          let setLogoutUrl = function (logoutUrl) {
-            Lockr.set('logoutUrl', logoutUrl);
+            localStorage.set('logoutUrl', logoutUrl);
          }
 
         /**
@@ -176,21 +226,21 @@
          * @return String
          */
          let getLogoutUrl = function () {
-            return Lockr.get('logoutUrl');
+            return localStorage.get('logoutUrl');
          }
 
          /**
           * Clears values saved in local storage.
           */
           let flushLocalStorage = function () {
-            Lockr.flush();
+            localStorage.flush();
           }
 
           /**
            * Sets the prefix used when creating local storage keys.
            */
           let setLocalStoragePrefix = function () {
-            Lockr.prefix = LOCAL_STORAGE_PREFIX;
+            localStorage.prefix = LOCAL_STORAGE_PREFIX;
           }
 
         /* -------------------------------------------------- */
@@ -357,7 +407,7 @@
          * Initializes Idle Hands.
          */
         let initialize = function () {
-            setLocalStoragePrefix();
+            initializeLocalStorage();
 
             flushLocalStorage();
 

@@ -1,6 +1,9 @@
 (function ($) {
     $.fn.idleHands = function (config) {
-        /* CONSTANTS */
+        /* -------------------------------------------------- */
+        // CONFIG CONSTANTS
+        /* -------------------------------------------------- */
+
         const LOCKR_PREFIX = config.lockrPrefix || 'idle_hands_';
         const MAX_INACTIVITY_SECONDS = config.maxInactivitySeconds || 600;
         const INACTIVITY_LOGOUT_URL = config.inactivityLogoutUrl || 'https://www.google.com';
@@ -14,17 +17,94 @@
         const DIALOG_TITLE = config.dialogTitle || 'Session Expiration Warning';
         const ACTIVITY_EVENTS = config.activityEvents || 'click keypress scroll wheel mousewheel mousemove';
 
-        /* VARIABLES */
+        /* -------------------------------------------------- */
+        // GLOBAL VARIABLES
+        /* -------------------------------------------------- */
+
         let sessionStartTime;
         let heartbeatTimer;
         let inactivityTimer;
         let elapsedSeconds;
         let originalPageTitle = document.title;
 
-        /* FUNCTIONS */
-        let clearStorage = function () {
-            alert('here');
+        /* -------------------------------------------------- */
+        // HEARTBEAT
+        /* -------------------------------------------------- */
+
+        let heartbeat = function () {
+            $.get(HEARTBEAT_URL);
         }
+
+        let startHeartbeatTimer = function () {
+            heartbeatTimer = setInterval(heartbeat, (SECONDS_BETWEEN_HEARTBEATS * 1000));
+        }
+
+        let stopHeartbeatTimer = function () {
+            clearInterval(heartbeatTimer);
+        }
+
+        /* -------------------------------------------------- */
+        // CHECK INACTIVITY
+        /* -------------------------------------------------- */
+
+        let checkInactivity = function () {
+            elapsedSeconds = Math.floor(($.now() - getSessionStartTime()) / 1000);
+
+            let remainingSeconds = (MAX_INACTIVITY_SECONDS - elapsedSeconds);
+            let secondsLabel = (remainingSeconds == 1) ? 'second' : 'seconds';
+
+            $('#' + DIALOG_ID + '-time-remaining').text(remainingSeconds + ' ' + secondsLabel);
+
+            if ((elapsedSeconds > MAX_INACTIVITY_SECONDS) || !Lockr.get('sessionStartTime')) {
+                logout(INACTIVITY_LOGOUT_URL);
+            } else if ((MAX_INACTIVITY_SECONDS - elapsedSeconds) <= INACTIVITY_TIMER_DISPLAY_SECONDS) {
+                $(document).off(ACTIVITY_EVENTS, activityHandler);
+
+                showDialog();
+            } else {
+                hideDialog();
+            }
+        }
+
+        let startInactivityTimer = function () {
+            setSessionStartTime($.now());
+
+            inactivityTimer = setInterval(checkInactivity, 1000);
+        };
+
+        let stopInactivityTimer = function () {
+            clearInterval(inactivityTimer);
+        }
+
+        let restartInactivityTimer = function () {
+            stopInactivityTimer();
+            startInactivityTimer();
+        }
+
+        let activityHandler = function (event) {
+            restartInactivityTimer();
+        }
+
+        /* -------------------------------------------------- */
+        // STORAGE
+        /* -------------------------------------------------- */
+
+        let setSessionStartTime = function (time) {
+            Lockr.set('sessionStartTime', time);
+            sessionStartTime = time;
+        }
+
+        let getSessionStartTime = function () {
+            return Lockr.get('sessionStartTime');
+        }
+
+        let deleteSessionStartTime = function () {
+            return Lockr.rm('sessionStartTime');
+        }
+
+        /* -------------------------------------------------- */
+        // DIALOG
+        /* -------------------------------------------------- */
 
         let createDialog = function () {
             let dialogContainerStyle = 'display: none;' +
@@ -110,46 +190,17 @@
             });
         }
 
-        let setSessionStartTime = function (time) {
-            Lockr.set('sessionStartTime', time);
-            sessionStartTime = time;
+        let showDialog = function () {
+            document.title = DIALOG_TITLE;
+
+            $('#' + DIALOG_ID).show(function () {
+                $('#' + DIALOG_ID + ' button').first().focus();
+            });
         }
 
-        let getSessionStartTime = function () {
-            return Lockr.get('sessionStartTime');
-        }
-
-        let deleteSessionStartTime = function () {
-            return Lockr.rm('sessionStartTime');
-        }
-
-        let startInactivityTimer = function () {
-            setSessionStartTime($.now());
-
-            inactivityTimer = setInterval(checkInactivity, 1000);
-        };
-
-        let startHeartbeatTimer = function () {
-            heartbeatTimer = setInterval(heartbeat, (SECONDS_BETWEEN_HEARTBEATS * 1000));
-        }
-
-        let checkInactivity = function () {
-            elapsedSeconds = Math.floor(($.now() - getSessionStartTime()) / 1000);
-
-            let remainingSeconds = (MAX_INACTIVITY_SECONDS - elapsedSeconds);
-            let secondsLabel = (remainingSeconds == 1) ? 'second' : 'seconds';
-
-            $('#' + DIALOG_ID + '-time-remaining').text(remainingSeconds + ' ' + secondsLabel);
-
-            if ((elapsedSeconds > MAX_INACTIVITY_SECONDS) || !Lockr.get('sessionStartTime')) {
-                logout(INACTIVITY_LOGOUT_URL);
-            } else if ((MAX_INACTIVITY_SECONDS - elapsedSeconds) <= INACTIVITY_TIMER_DISPLAY_SECONDS) {
-                $(document).off(ACTIVITY_EVENTS, activityHandler);
-
-                showDialog();
-            } else {
-                hideDialog();
-            }
+        let hideDialog = function () {
+            document.title = originalPageTitle;
+            $('#' + DIALOG_ID ).hide();
         }
 
         let logout = function (logoutUrl) {
@@ -166,15 +217,6 @@
             window.location.href = Lockr.get('logoutUrl');
         }
 
-        let restartInactivityTimer = function () {
-            stopInactivityTimer();
-            startInactivityTimer();
-        }
-
-        let activityHandler = function (event) {
-            restartInactivityTimer();
-        }
-
         let stayLoggedIn = function () {
             Lockr.flush();
 
@@ -185,30 +227,9 @@
             hideDialog();
         }
 
-        let stopInactivityTimer = function () {
-            clearInterval(inactivityTimer);
-        }
-
-        let heartbeat = function () {
-            $.get(HEARTBEAT_URL);
-        }
-
-        let stopHeartbeatTimer = function () {
-            clearInterval(heartbeatTimer);
-        }
-
-        let showDialog = function () {
-            document.title = DIALOG_TITLE;
-
-            $('#' + DIALOG_ID).show(function () {
-                $('#' + DIALOG_ID + ' button').first().focus();
-            });
-        }
-
-        let hideDialog = function () {
-            document.title = originalPageTitle;
-            $('#' + DIALOG_ID ).hide();
-        }
+        /* -------------------------------------------------- */
+        // START IDLE HANDS
+        /* -------------------------------------------------- */
 
         let initialize = function () {
             Lockr.prefix = LOCKR_PREFIX;

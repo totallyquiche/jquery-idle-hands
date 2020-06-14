@@ -13,7 +13,7 @@
         const HEART_RATE = config.heartRate || 300;
         const INACTIVITY_LOGOUT_URL = config.inactivityLogoutUrl || 'https://www.google.com';
         const INACTIVITY_DIALOG_DURATION = config.inactivityDialogDuration || 45;
-        const LOCKR_PREFIX = config.lockrPrefix || (APPLICATION_ID + '_');
+        const LOCAL_STORAGE_PREFIX = config.localStoragePrefix || (APPLICATION_ID + '_');
         const MANUAL_LOGOUT_URL = config.manualLogoutUrl || INACTIVITY_LOGOUT_URL;
         const MAX_INACTIVITY_SECONDS = config.maxInactivitySeconds || 600;
 
@@ -179,6 +179,20 @@
             return Lockr.get('logoutUrl');
          }
 
+         /**
+          * Clears values saved in local storage.
+          */
+          let flushLocalStorage = function () {
+            Lockr.flush();
+          }
+
+          /**
+           * Sets the prefix used when creating local storage keys.
+           */
+          let setLocalStoragePrefix = function () {
+            Lockr.prefix = LOCAL_STORAGE_PREFIX;
+          }
+
         /* -------------------------------------------------- */
         // DIALOG
         /* -------------------------------------------------- */
@@ -326,7 +340,7 @@
          * logged in as if they just loaded the page.
          */
         let stayLoggedIn = function () {
-            Lockr.flush();
+            flushLocalStorage();
 
             restartInactivityTimer();
 
@@ -343,9 +357,9 @@
          * Initializes Idle Hands.
          */
         let initialize = function () {
-            Lockr.prefix = LOCKR_PREFIX;
+            setLocalStoragePrefix();
 
-            Lockr.flush();
+            flushLocalStorage();
 
             $(document).on(ACTIVITY_EVENTS, activityHandler);
 

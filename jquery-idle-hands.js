@@ -24,7 +24,6 @@
         let sessionStartTime;
         let heartbeatTimer;
         let inactivityTimer;
-        let elapsedSeconds;
         let originalPageTitle = document.title;
 
         /* -------------------------------------------------- */
@@ -70,18 +69,23 @@
          * out, displays the inactivity dialog, or hides the inactivity dialog.
          */
         let checkInactivity = function () {
-            elapsedSeconds = Math.floor(
-                (Date.now() - getSessionStartTime()) / 1000
-            );
-
+            let sessionStartTime = getSessionStartTime();
+            let elapsedSeconds = Math.floor((Date.now() - sessionStartTime) / 1000);
             let remainingSeconds = (MAX_INACTIVITY_SECONDS - elapsedSeconds);
             let secondsLabel = (remainingSeconds == 1) ? 'second' : 'seconds';
+
+            // Update the dialog timer
 
             $('#' + APPLICATION_ID + '-time-remaining').text(
                 remainingSeconds + ' ' + secondsLabel
             );
 
-            if ((elapsedSeconds > MAX_INACTIVITY_SECONDS) || !Lockr.get('sessionStartTime')) {
+            // If we are over our inactivity limit or the session has been cleared,
+            // log the user out; otherwise, if we are within the inactivity dialog
+            // duration, stop tracking activity and show the dialog; otherwise,
+            // hide the dialog.
+
+            if ((elapsedSeconds > MAX_INACTIVITY_SECONDS) || !sessionStartTime) {
                 logout(INACTIVITY_LOGOUT_URL);
             } else if (remainingSeconds <= INACTIVITY_DIALOG_DURATION) {
                 $(document).off(ACTIVITY_EVENTS, activityHandler);
@@ -157,12 +161,33 @@
             Lockr.rm('sessionStartTime');
         }
 
+        /**
+         * Sets the logout URL in local storage.
+         *
+         * @return String
+         */
+         let getLogoutUrl = function (logoutUrl) {
+            Lockr.set('logoutUrl', logoutUrl);
+         }
+
+        /**
+         * Retrieves the logout URL from local storage.
+         *
+         * @return String
+         */
+         let getLogoutUrl = function () {
+            return Lockr.get('logoutUrl');
+         }
+
         /* -------------------------------------------------- */
         // DIALOG
         /* -------------------------------------------------- */
 
         /**
          * Creates the dialog window and attaches it to the body element.
+         *
+         * Uses inline styles and IDs whenever possible to prevent conflicts with
+         * external libraries and/or style sheets.
          */
         let createDialog = function () {
             let dialogContainerStyle = 'display: none;' +
@@ -235,11 +260,15 @@
 
             $('body').append(dialogContainer);
 
+            // Stay Logged In button
+
             $('#' + APPLICATION_ID + '-stay-logged-in-button').on('click', function (event) {
                 event.stopPropagation();
 
                 stayLoggedIn();
             });
+
+            // Logout button
 
             $('#' + APPLICATION_ID + '-logout-button').on('click', function (event) {
                 event.stopPropagation();
@@ -253,6 +282,8 @@
          */
         let showDialog = function () {
             document.title = DIALOG_TITLE;
+
+            // Puts focus on the Stay Logged In button
 
             $('#' + APPLICATION_ID).show(function () {
                 $('#' + APPLICATION_ID + ' button').first().focus();
@@ -277,8 +308,8 @@
          * @param String logoutUrl
          */
         let logout = function (logoutUrl) {
-            if (!Lockr.get('logoutUrl')) {
-                Lockr.set('logoutUrl', logoutUrl);
+            if (!getLogoutUrl()) {
+                setLogoutUrl(logoutUrl);
             }
 
             stopHeartbeatTimer();
@@ -287,7 +318,7 @@
 
             $('#' + APPLICATION_ID + '-dialog').hide();
 
-            window.location.href = Lockr.get('logoutUrl');
+            window.location.href = getLogoutUrl();
         }
 
         /**

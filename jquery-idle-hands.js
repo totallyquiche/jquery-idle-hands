@@ -5,7 +5,7 @@
         /* -------------------------------------------------- */
 
         const ACTIVITY_EVENTS = config.activityEvents || 'click keypress scroll wheel mousewheel mousemove';
-        const DIALOG_ID = config.dialogId || 'idle-hands';
+        const APPLICATION_ID = config.applicationId || 'idle-hands';
         const DIALOG_MESSAGE = config.dialogMessage || 'Your session is about to expire due to inactivity.';
         const DIALOG_TIME_REMAINING_LABEL = config.dialogTimeRemainingLabel || 'Time remaining';
         const DIALOG_TITLE = config.dialogTitle || 'Session Expiration Warning';
@@ -13,7 +13,7 @@
         const HEART_RATE = config.heartRate || 300;
         const INACTIVITY_LOGOUT_URL = config.inactivityLogoutUrl || 'https://www.google.com';
         const INACTIVITY_DIALOG_DURATION = config.inactivityDialogDuration || 45;
-        const LOCKR_PREFIX = config.lockrPrefix || 'idle_hands_';
+        const LOCKR_PREFIX = config.lockrPrefix || (APPLICATION_ID + '_');
         const MANUAL_LOGOUT_URL = config.manualLogoutUrl || INACTIVITY_LOGOUT_URL;
         const MAX_INACTIVITY_SECONDS = config.maxInactivitySeconds || 600;
 
@@ -53,7 +53,7 @@
             let remainingSeconds = (MAX_INACTIVITY_SECONDS - elapsedSeconds);
             let secondsLabel = (remainingSeconds == 1) ? 'second' : 'seconds';
 
-            $('#' + DIALOG_ID + '-time-remaining').text(remainingSeconds + ' ' + secondsLabel);
+            $('#' + APPLICATION_ID + '-time-remaining').text(remainingSeconds + ' ' + secondsLabel);
 
             if ((elapsedSeconds > MAX_INACTIVITY_SECONDS) || !Lockr.get('sessionStartTime')) {
                 logout(INACTIVITY_LOGOUT_URL);
@@ -151,39 +151,39 @@
                                     'padding: 5px 0;' +
                                     'margin: 1% 5%;';
 
-            let overlay = '<div style="' + overlayStyle + '" id="' +  DIALOG_ID + '-overlay"></div>';
+            let overlay = '<div style="' + overlayStyle + '" id="' +  APPLICATION_ID + '-overlay"></div>';
 
-            let dialogTitle = '<div style="' + dialogTitleStyle + '" id="' + DIALOG_ID + '-dialog-title">' +
+            let dialogTitle = '<div style="' + dialogTitleStyle + '" id="' + APPLICATION_ID + '-dialog-title">' +
                               DIALOG_TITLE +
                               '</div>';
 
-            let dialogMessage = '<div style="' + dialogMessageContainerStyle + '" id="' + DIALOG_ID + '-message-container">' +
-                                '<p id="' + DIALOG_ID + '-message">' + DIALOG_MESSAGE + '</p>' +
-                                '<p>' + DIALOG_TIME_REMAINING_LABEL + ': <span id="' + DIALOG_ID + '-time-remaining"></span></p>' +
+            let dialogMessage = '<div style="' + dialogMessageContainerStyle + '" id="' + APPLICATION_ID + '-message-container">' +
+                                '<p id="' + APPLICATION_ID + '-message">' + DIALOG_MESSAGE + '</p>' +
+                                '<p>' + DIALOG_TIME_REMAINING_LABEL + ': <span id="' + APPLICATION_ID + '-time-remaining"></span></p>' +
                                 '</div>';
 
-            let dialog = '<div style="' + dialogStyle + '" id="' + DIALOG_ID + '-dialog">' +
+            let dialog = '<div style="' + dialogStyle + '" id="' + APPLICATION_ID + '-dialog">' +
                          dialogTitle +
                          dialogMessage +
                          '<hr style="' + dialogHrStyle + '" />' +
-                         '<button style="' + dialogButtonStyle + '" id="' + DIALOG_ID + '-stay-logged-in-button">Stay Logged In</button>' +
-                         '<button style="' + dialogButtonStyle + '" id="' + DIALOG_ID + '-logout-button">Logout Now</button>' +
+                         '<button style="' + dialogButtonStyle + '" id="' + APPLICATION_ID + '-stay-logged-in-button">Stay Logged In</button>' +
+                         '<button style="' + dialogButtonStyle + '" id="' + APPLICATION_ID + '-logout-button">Logout Now</button>' +
                          '</div>';
 
-            let dialogContainer = '<div style="' + dialogContainerStyle  + '" id="' + DIALOG_ID + '">' +
+            let dialogContainer = '<div style="' + dialogContainerStyle  + '" id="' + APPLICATION_ID + '">' +
                                    overlay +
                                    dialog +
                                    '</div>';
 
             $('body').append(dialogContainer);
 
-            $('#' + DIALOG_ID + '-stay-logged-in-button').on('click', function (event) {
+            $('#' + APPLICATION_ID + '-stay-logged-in-button').on('click', function (event) {
                 event.stopPropagation();
 
                 stayLoggedIn();
             });
 
-            $('#' + DIALOG_ID + '-logout-button').on('click', function (event) {
+            $('#' + APPLICATION_ID + '-logout-button').on('click', function (event) {
                 event.stopPropagation();
 
                 logout(MANUAL_LOGOUT_URL);
@@ -193,14 +193,14 @@
         let showDialog = function () {
             document.title = DIALOG_TITLE;
 
-            $('#' + DIALOG_ID).show(function () {
-                $('#' + DIALOG_ID + ' button').first().focus();
+            $('#' + APPLICATION_ID).show(function () {
+                $('#' + APPLICATION_ID + ' button').first().focus();
             });
         }
 
         let hideDialog = function () {
             document.title = originalPageTitle;
-            $('#' + DIALOG_ID ).hide();
+            $('#' + APPLICATION_ID ).hide();
         }
 
         let logout = function (logoutUrl) {
@@ -212,7 +212,7 @@
             stopInactivityTimer();
             deleteSessionStartTime();
 
-            $('#' + DIALOG_ID + '-dialog').hide();
+            $('#' + APPLICATION_ID + '-dialog').hide();
 
             window.location.href = Lockr.get('logoutUrl');
         }

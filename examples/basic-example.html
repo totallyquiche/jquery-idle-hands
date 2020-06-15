@@ -12,12 +12,11 @@
         <script>
             $(function () {
                 $.idleHands({
-                    'applicationId': 'my_application',
-                    'maxInactivitySeconds': 15,
-                    'inactivityDialogDuration': 10,
-                    'inactivityLogoutUrl': 'https://www.google.com/?automatic',
-                    'manualLogoutUrl': 'https://www.google.com/?manual',
-                    'heartRate': 5
+                    applicationId: 'my_application',
+                    heartRate: 5,
+                    inactivityDialogDuration: 10,
+                    inactivityLogoutUrl: 'https://www.google.com',
+                    maxInactivitySeconds: 15
                 });
             });
         </script>

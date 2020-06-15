@@ -19,11 +19,11 @@ A jQuery plugin for managing user inactivity timeoutes across browsers windows.
 <script>
     $(function () {
         $.idleHands({
-            'applicationId': 'my_application',
-            'maxInactivitySeconds': 15,
-            'inactivityDialogDuration': 10,
-            'inactivityLogoutUrl': 'https://www.google.com',
-            'heartRate': 5
+            applicationId: 'my_application',
+            heartRate: 5,
+            inactivityDialogDuration: 10,
+            inactivityLogoutUrl: 'https://www.google.com',
+            maxInactivitySeconds: 15
         });
     });
 </script>

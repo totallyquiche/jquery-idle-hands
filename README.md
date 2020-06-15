@@ -42,7 +42,7 @@ A jQuery plugin for managing user inactivity timeoutes across browsers windows.
 |`inactivityLogoutUrl`|`'https://www.google.com'`|This is the URL that users will be redirected to if the inactivity dialog timer reaches 0 seconds.|
 |`inactivityDialogDuration`|`45`|This is how before a user is logged out that the inactivity dialog will display for.|
 |`localStoragePrefix`|`null`|Keys in key/value pairs saved in the browser are prefixed with this value to help prevent conflicts with other applications storing data in the browser. When left `null`, this defaults to `applicationId`.|
-|`logoutNowButtonText`|'Logout Now'|This is the text that will display on the logout button in the inactivity dialog.|
+|`logoutNowButtonText`|`'Logout Now'`|This is the text that will display on the logout button in the inactivity dialog.|
 |`manualLogoutUrl`|`null`|This is the URL that users will be redirected to if they click the logout button on the inactivity dialog. When left `null`, this will default to `inactivityLogoutUrl`.|
 |`maxInactivitySeconds`|`60`|This is the number of seconds a user can remain inactive before they are automatically redirected to `inactivityLogoutUrl`.|
-|`stayLoggedInButtonText`|`Stay Logged In`|This is the text that will display on the reset button in the inactivity dialog.|
+|`stayLoggedInButtonText`|`'Stay Logged In'`|This is the text that will display on the reset button in the inactivity dialog.|

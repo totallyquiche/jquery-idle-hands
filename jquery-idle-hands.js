@@ -1,5 +1,5 @@
 (function ($) {
-    $.fn.idleHands = function (userSettings) {
+    $.idleHands = function (userSettings) {
         /* -------------------------------------------------- */
         // GLOBAL VARIABLES
         /* -------------------------------------------------- */
@@ -31,7 +31,7 @@
         /* -------------------------------------------------- */
 
         /**
-         * Makes an AJAX request to the provided URL.
+         * Makes an HTTP GET request to the provided URL.
          *
          * This is intended to be used as a "keep-alive" method to prevent users
          * sessions from expiring before the Idle Hands dialog appears.
@@ -73,8 +73,6 @@
             let elapsedSeconds = Math.floor((Date.now() - sessionStartTime) / 1000);
             let remainingSeconds = (settings.maxInactivitySeconds - elapsedSeconds);
             let secondsLabel = (remainingSeconds == 1) ? 'second' : 'seconds';
-
-            // Update the dialog timer
 
             $('#' + settings.applicationId + '-time-remaining').text(
                 remainingSeconds + ' ' + secondsLabel
@@ -338,8 +336,6 @@
          */
         let showDialog = function () {
             document.title = settings.dialogTitle;
-
-            // Puts focus on the Stay Logged In button
 
             $('#' + settings.applicationId).show(function () {
                 $('#' + settings.applicationId + ' button').first().focus();

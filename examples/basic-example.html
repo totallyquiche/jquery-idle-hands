@@ -10,13 +10,15 @@
         <script src="assets/js/jquery-3.5.1.min.js"></script>
         <script src="../jquery-idle-hands.js"></script>
         <script>
-            $().idleHands({
-                'applicationId': 'my_application',
-                'maxInactivitySeconds': 15,
-                'inactivityDialogDuration': 10,
-                'inactivityLogoutUrl': 'https://www.google.com/?automatic',
-                'manualLogoutUrl': 'https://www.google.com/?manual',
-                'heartRate': 5
+            $(function () {
+                $.idleHands({
+                    'applicationId': 'my_application',
+                    'maxInactivitySeconds': 15,
+                    'inactivityDialogDuration': 10,
+                    'inactivityLogoutUrl': 'https://www.google.com/?automatic',
+                    'manualLogoutUrl': 'https://www.google.com/?manual',
+                    'heartRate': 5
+                });
             });
         </script>
     </body>

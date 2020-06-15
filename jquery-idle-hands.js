@@ -78,7 +78,7 @@
          */
         let checkInactivity = function () {
             let sessionStartTime = getSessionStartTime();
-            let elapsedSeconds = Math.floor((Date.now() - sessionStartTime) / 1000);
+            let elapsedSeconds = Math.floor(((new Date()).getTime() - sessionStartTime) / 1000);
             let remainingSeconds = (settings.maxInactivitySeconds - elapsedSeconds);
             let secondsLabel = (remainingSeconds == 1) ? 'second' : 'seconds';
 
@@ -106,7 +106,7 @@
          * Starts checking for inactivity every second.
          */
         let startInactivityTimer = function () {
-            setSessionStartTime(Date.now());
+            setSessionStartTime((new Date()).getTime());
 
             inactivityTimer = setInterval(checkInactivity, 1000);
         };

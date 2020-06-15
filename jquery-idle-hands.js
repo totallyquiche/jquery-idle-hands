@@ -15,8 +15,10 @@
             inactivityLogoutUrl: 'https://www.google.com',
             inactivityDialogDuration: 45,
             localStoragePrefix: null,
+            logoutNowButtonText: 'Logout Now',
             manualLogoutUrl: null,
-            maxInactivitySeconds: 600
+            maxInactivitySeconds: 600,
+            stayLoggedInButtonText: 'Stay Logged In'
         };
 
         let settings = $.extend({}, defaultSettings, userSettings);
@@ -303,8 +305,8 @@
                          dialogTitle +
                          dialogMessage +
                          '<hr style="' + dialogHrStyle + '" />' +
-                         '<button style="' + dialogButtonStyle + '" id="' + settings.applicationId + '-stay-logged-in-button">Stay Logged In</button>' +
-                         '<button style="' + dialogButtonStyle + '" id="' + settings.applicationId + '-logout-button">Logout Now</button>' +
+                         '<button style="' + dialogButtonStyle + '" id="' + settings.applicationId + '-stay-logged-in-button">' + settings.stayLoggedInButtonText + '</button>' +
+                         '<button style="' + dialogButtonStyle + '" id="' + settings.applicationId + '-logout-button">' + settings.logoutNowButtonText + '</button>' +
                          '</div>';
 
             let dialogContainer = '<div style="' + dialogContainerStyle  + '" id="' + settings.applicationId + '">' +

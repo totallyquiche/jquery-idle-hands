@@ -82,7 +82,7 @@
             let remainingSeconds = (settings.maxInactivitySeconds - elapsedSeconds);
             let secondsLabel = (remainingSeconds == 1) ? 'second' : 'seconds';
 
-            $('#' + settings.applicationId + '-time-remaining').text(
+            $('#jquery-idle-hands-time-remaining').text(
                 remainingSeconds + ' ' + secondsLabel
             );
 
@@ -252,79 +252,29 @@
          * external libraries and/or style sheets.
          */
         let createDialog = function () {
-            let dialogContainerStyle = 'display: none;' +
-                                       'z-index: 1000;';
-
-            let overlayStyle = 'position:fixed;' +
-                               'width: 100%;' +
-                               'height: 100%;' +
-                               'top: 0;' +
-                               'left: 0;' +
-                               'right: 0;' +
-                               'bottom: 0;' +
-                               'background-color: rgba(0, 0, 0, 0.25);' +
-                               'z-index: 1;';
-
-            let dialogStyle = 'position: absolute;' +
-                              'top: 50%;' +
-                              'left: 50%;' +
-                              'transform: translate(-50%, -50%);' +
-                              'z-index: 2;' +
-                              'background-color: #ffffff;' +
-                              'border-radius: 4px;' +
-                              'padding: 4px;' +
-                              'min-width: 300px;' +
-                              "font-family: 'Verdana', sans-serif;" +
-                              'font-weight: 400;' +
-                              'box-shadow: 0px 0px 3px black;';
-
-            let dialogTitleStyle = 'text-align: center;' +
-                                   'background-color: #1484c8;' +
-                                   'padding: 5px;' +
-                                   'border-radius: 4px;' +
-                                   'font-size: 1.2rem;' +
-                                   'font-weight: 700;' +
-                                   'color: #ffffff;';
-
-            let dialogMessageContainerStyle = 'padding: 10px;';
-
-            let dialogHrStyle = 'margin: 0 0 4px 0;' +
-                                'border: 1px solid silver;' +
-                                'border-top: none;';
-
-            let dialogButtonStyle = 'width: 40%;' +
-                                    'padding: 5px 0;' +
-                                    'margin: 1% 5%;';
-
-            let overlay = '<div style="' + overlayStyle + '" id="' +  settings.applicationId + '-overlay"></div>';
-
-            let dialogTitle = '<div style="' + dialogTitleStyle + '" id="' + settings.applicationId + '-dialog-title">' +
-                              settings.dialogTitle +
-                              '</div>';
-
-            let dialogMessage = '<div style="' + dialogMessageContainerStyle + '" id="' + settings.applicationId + '-message-container">' +
-                                '<p id="' + settings.applicationId + '-message">' + settings.dialogMessage + '</p>' +
-                                '<p>' + settings.dialogTimeRemainingLabel + ': <span id="' + settings.applicationId + '-time-remaining"></span></p>' +
-                                '</div>';
-
-            let dialog = '<div style="' + dialogStyle + '" id="' + settings.applicationId + '-dialog">' +
-                         dialogTitle +
-                         dialogMessage +
-                         '<hr style="' + dialogHrStyle + '" />' +
-                         '<button style="' + dialogButtonStyle + '" id="' + settings.applicationId + '-stay-logged-in-button">' + settings.stayLoggedInButtonText + '</button>' +
-                         '<button style="' + dialogButtonStyle + '" id="' + settings.applicationId + '-logout-button">' + settings.logoutNowButtonText + '</button>' +
-                         '</div>';
-
-            let dialogContainer = '<div style="' + dialogContainerStyle  + '" id="' + settings.applicationId + '">' +
-                                   overlay +
-                                   dialog +
-                                   '</div>';
+            let dialogContainer = '<div id="jquery-idle-hands">' +
+                                  '<div id="jquery-idle-hands-overlay"></div>' +
+                                  '<div id="jquery-idle-hands-dialog">' +
+                                  '<div id="jquery-idle-hands-dialog-title">' + settings.dialogTitle + '</div>' +
+                                  '<div id="jquery-idle-hands-message-container">' +
+                                  '<p id="jquery-idle-hands-message">' + settings.dialogMessage + '</p>' +
+                                  '<p id="jquery-idle-hands-time-remaining-label">' + (settings.dialogTimeRemainingLabel + ': ') +
+                                  '<span id="jquery-idle-hands-time-remaining"></span>' +
+                                  '</p>' +
+                                  '</div>' +
+                                  '<hr/>' +
+                                  '<div id="jquery-idle-hands-button-container">' +
+                                  '<button id="jquery-idle-hands-stay-logged-in-button">' + settings.stayLoggedInButtonText + '</button>' +
+                                  '<button id="jquery-idle-hands-logout-button">' + settings.logoutNowButtonText + '</button>' +
+                                  '</div>' +
+                                  '</div>' +
+                                  '</div>';
 
             $('body').append(dialogContainer);
 
             // Stay Logged In button
 
-            $('#' + settings.applicationId + '-stay-logged-in-button').on('click', function (event) {
+            $('#jquery-idle-hands-stay-logged-in-button').on('click', function (event) {
                 event.stopPropagation();
 
                 stayLoggedIn();
@@ -332,7 +282,7 @@
 
             // Logout button
 
-            $('#' + settings.applicationId + '-logout-button').on('click', function (event) {
+            $('#jquery-idle-hands-logout-button').on('click', function (event) {
                 event.stopPropagation();
 
                 logout(settings.manualLogoutUrl);
@@ -345,8 +295,8 @@
         let showDialog = function () {
             document.title = settings.dialogTitle;
 
-            $('#' + settings.applicationId).show(function () {
-                $('#' + settings.applicationId + ' button').first().focus();
+            $('#jquery-idle-hands').show(function () {
+                $('#jquery-idle-hands button').first().focus();
             });
         }
 
@@ -356,7 +306,7 @@
         let hideDialog = function () {
             document.title = originalPageTitle;
 
-            $('#' + settings.applicationId ).hide();
+            $('#jquery-idle-hands').hide();
         }
 
         /**
@@ -377,7 +327,7 @@
             stopInactivityTimer();
             deleteSessionStartTime();
 
-            $('#' + settings.applicationId + '-dialog').hide();
+            $('#jquery-idle-hands-dialog').hide();
 
             window.location.href = getLogoutUrl();
         }

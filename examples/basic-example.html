@@ -6,17 +6,18 @@
         <title>Idle Hands</title>
     </head>
     <body>
+        <link rel="stylesheet" type="text/css" href="../jquery-idle-hands.css" />
         <script src="assets/js/basil.js-0.4.6/build/basil.js"></script>
         <script src="assets/js/jquery-3.5.1.min.js"></script>
-        <script src="../jquery-idle-hands.min.js"></script>
+        <script src="../jquery-idle-hands.js"></script>
         <script>
             $(function () {
                 $.idleHands({
                     applicationId: 'my_application',
                     heartRate: 5,
-                    inactivityDialogDuration: 10,
+                    inactivityDialogDuration: 1500,
                     inactivityLogoutUrl: 'https://www.google.com',
-                    maxInactivitySeconds: 15
+                    maxInactivitySeconds: 1500
                 });
             });
         </script>

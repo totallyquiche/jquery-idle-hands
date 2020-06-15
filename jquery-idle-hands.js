@@ -22,6 +22,12 @@
         };
 
         let settings = $.extend({}, defaultSettings, userSettings);
+
+        // Set some fallback settings
+
+        settings.localStoragePrefix = settings.localStoragePrefix || settings.applicationId;
+        settings.manualLogoutUrl = settings.manualLogoutUrl || settings.inactivityLogoutUrl;
+
         let sessionStartTime;
         let heartbeatTimer;
         let inactivityTimer;
@@ -139,7 +145,7 @@
          */
          let initializeLocalStorage = function () {
             let config = {
-              namespace: settings.localStoragePrefix || settings.applicationId,
+              namespace: settings.localStoragePrefix,
               keyDelimiter: '.'
             };
 
@@ -329,7 +335,7 @@
             $('#' + settings.applicationId + '-logout-button').on('click', function (event) {
                 event.stopPropagation();
 
-                logout(settings.manualLogoutUrl || settings.inactivityLogoutUrl);
+                logout(settings.manualLogoutUrl);
             });
         }
 

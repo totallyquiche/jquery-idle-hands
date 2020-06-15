@@ -1,26 +1,25 @@
 (function ($) {
-    $.fn.idleHands = function (config) {
-        /* -------------------------------------------------- */
-        // CONFIG CONSTANTS
-        /* -------------------------------------------------- */
-
-        const ACTIVITY_EVENTS = config.activityEvents || 'click keypress scroll wheel mousewheel mousemove';
-        const APPLICATION_ID = config.applicationId || 'idle-hands';
-        const DIALOG_MESSAGE = config.dialogMessage || 'Your session is about to expire due to inactivity.';
-        const DIALOG_TIME_REMAINING_LABEL = config.dialogTimeRemainingLabel || 'Time remaining';
-        const DIALOG_TITLE = config.dialogTitle || 'Session Expiration Warning';
-        const HEARTBEAT_URL = config.heartbeatUrl || window.location.href;
-        const HEART_RATE = config.heartRate || 300;
-        const INACTIVITY_LOGOUT_URL = config.inactivityLogoutUrl || 'https://www.google.com';
-        const INACTIVITY_DIALOG_DURATION = config.inactivityDialogDuration || 45;
-        const LOCAL_STORAGE_PREFIX = config.localStoragePrefix || APPLICATION_ID;
-        const MANUAL_LOGOUT_URL = config.manualLogoutUrl || INACTIVITY_LOGOUT_URL;
-        const MAX_INACTIVITY_SECONDS = config.maxInactivitySeconds || 600;
-
+    $.fn.idleHands = function (userSettings) {
         /* -------------------------------------------------- */
         // GLOBAL VARIABLES
         /* -------------------------------------------------- */
 
+        let defaultSettings = {
+            activityEvents: 'click keypress scroll wheel mousewheel mousemove',
+            applicationId: 'idle-hands',
+            dialogMessage: 'Your session is about to expire due to inactivity.',
+            dialogTimeRemainingLabel: 'Time remaining',
+            dialogTitle: 'Session Expiration Warning',
+            heartbeatUrl: window.location.href,
+            heartRate: 300,
+            inactivityLogoutUrl: 'https://www.google.com',
+            inactivityDialogDuration: 45,
+            localStoragePrefix: null,
+            manualLogoutUrl: null,
+            maxInactivitySeconds: 600
+        };
+
+        let settings = $.extend({}, defaultSettings, userSettings);
         let sessionStartTime;
         let heartbeatTimer;
         let inactivityTimer;
@@ -49,8 +48,8 @@
          */
         let startHeartbeatTimer = function () {
             heartbeatTimer = setInterval(
-                heartbeat(HEARTBEAT_URL),
-                (HEART_RATE * 1000)
+                heartbeat(settings.heartbeatUrl),
+                (settings.heartRate * 1000)
             );
         }
 
@@ -72,12 +71,12 @@
         let checkInactivity = function () {
             let sessionStartTime = getSessionStartTime();
             let elapsedSeconds = Math.floor((Date.now() - sessionStartTime) / 1000);
-            let remainingSeconds = (MAX_INACTIVITY_SECONDS - elapsedSeconds);
+            let remainingSeconds = (settings.maxInactivitySeconds - elapsedSeconds);
             let secondsLabel = (remainingSeconds == 1) ? 'second' : 'seconds';
 
             // Update the dialog timer
 
-            $('#' + APPLICATION_ID + '-time-remaining').text(
+            $('#' + settings.applicationId + '-time-remaining').text(
                 remainingSeconds + ' ' + secondsLabel
             );
 
@@ -86,10 +85,10 @@
             // duration, stop tracking activity and show the dialog; otherwise,
             // hide the dialog.
 
-            if ((elapsedSeconds > MAX_INACTIVITY_SECONDS) || !sessionStartTime) {
-                logout(INACTIVITY_LOGOUT_URL);
-            } else if (remainingSeconds <= INACTIVITY_DIALOG_DURATION) {
-                $(document).off(ACTIVITY_EVENTS, activityHandler);
+            if ((elapsedSeconds > settings.maxInactivitySeconds) || !sessionStartTime) {
+                logout(settings.inactivityLogoutUrl);
+            } else if (remainingSeconds <= settings.inactivityDialogDuration) {
+                $(document).off(settings.activityEvents, activityHandler);
 
                 showDialog();
             } else {
@@ -140,7 +139,7 @@
          */
          let initializeLocalStorage = function () {
             let config = {
-              namespace: LOCAL_STORAGE_PREFIX,
+              namespace: settings.localStoragePrefix || settings.applicationId,
               keyDelimiter: '.'
             };
 
@@ -236,13 +235,6 @@
             localStorage.flush();
           }
 
-          /**
-           * Sets the prefix used when creating local storage keys.
-           */
-          let setLocalStoragePrefix = function () {
-            localStorage.prefix = LOCAL_STORAGE_PREFIX;
-          }
-
         /* -------------------------------------------------- */
         // DIALOG
         /* -------------------------------------------------- */
@@ -298,26 +290,26 @@
                                     'padding: 5px 0;' +
                                     'margin: 1% 5%;';
 
-            let overlay = '<div style="' + overlayStyle + '" id="' +  APPLICATION_ID + '-overlay"></div>';
+            let overlay = '<div style="' + overlayStyle + '" id="' +  settings.applicationId + '-overlay"></div>';
 
-            let dialogTitle = '<div style="' + dialogTitleStyle + '" id="' + APPLICATION_ID + '-dialog-title">' +
-                              DIALOG_TITLE +
+            let dialogTitle = '<div style="' + dialogTitleStyle + '" id="' + settings.applicationId + '-dialog-title">' +
+                              settings.dialogTitle +
                               '</div>';
 
-            let dialogMessage = '<div style="' + dialogMessageContainerStyle + '" id="' + APPLICATION_ID + '-message-container">' +
-                                '<p id="' + APPLICATION_ID + '-message">' + DIALOG_MESSAGE + '</p>' +
-                                '<p>' + DIALOG_TIME_REMAINING_LABEL + ': <span id="' + APPLICATION_ID + '-time-remaining"></span></p>' +
+            let dialogMessage = '<div style="' + dialogMessageContainerStyle + '" id="' + settings.applicationId + '-message-container">' +
+                                '<p id="' + settings.applicationId + '-message">' + settings.dialogMessage + '</p>' +
+                                '<p>' + settings.dialogTimeRemainingLabel + ': <span id="' + settings.applicationId + '-time-remaining"></span></p>' +
                                 '</div>';
 
-            let dialog = '<div style="' + dialogStyle + '" id="' + APPLICATION_ID + '-dialog">' +
+            let dialog = '<div style="' + dialogStyle + '" id="' + settings.applicationId + '-dialog">' +
                          dialogTitle +
                          dialogMessage +
                          '<hr style="' + dialogHrStyle + '" />' +
-                         '<button style="' + dialogButtonStyle + '" id="' + APPLICATION_ID + '-stay-logged-in-button">Stay Logged In</button>' +
-                         '<button style="' + dialogButtonStyle + '" id="' + APPLICATION_ID + '-logout-button">Logout Now</button>' +
+                         '<button style="' + dialogButtonStyle + '" id="' + settings.applicationId + '-stay-logged-in-button">Stay Logged In</button>' +
+                         '<button style="' + dialogButtonStyle + '" id="' + settings.applicationId + '-logout-button">Logout Now</button>' +
                          '</div>';
 
-            let dialogContainer = '<div style="' + dialogContainerStyle  + '" id="' + APPLICATION_ID + '">' +
+            let dialogContainer = '<div style="' + dialogContainerStyle  + '" id="' + settings.applicationId + '">' +
                                    overlay +
                                    dialog +
                                    '</div>';
@@ -326,7 +318,7 @@
 
             // Stay Logged In button
 
-            $('#' + APPLICATION_ID + '-stay-logged-in-button').on('click', function (event) {
+            $('#' + settings.applicationId + '-stay-logged-in-button').on('click', function (event) {
                 event.stopPropagation();
 
                 stayLoggedIn();
@@ -334,10 +326,10 @@
 
             // Logout button
 
-            $('#' + APPLICATION_ID + '-logout-button').on('click', function (event) {
+            $('#' + settings.applicationId + '-logout-button').on('click', function (event) {
                 event.stopPropagation();
 
-                logout(MANUAL_LOGOUT_URL);
+                logout(settings.manualLogoutUrl || settings.inactivityLogoutUrl);
             });
         }
 
@@ -345,12 +337,12 @@
          * Shows the dialog window.
          */
         let showDialog = function () {
-            document.title = DIALOG_TITLE;
+            document.title = settings.dialogTitle;
 
             // Puts focus on the Stay Logged In button
 
-            $('#' + APPLICATION_ID).show(function () {
-                $('#' + APPLICATION_ID + ' button').first().focus();
+            $('#' + settings.applicationId).show(function () {
+                $('#' + settings.applicationId + ' button').first().focus();
             });
         }
 
@@ -359,7 +351,8 @@
          */
         let hideDialog = function () {
             document.title = originalPageTitle;
-            $('#' + APPLICATION_ID ).hide();
+
+            $('#' + settings.applicationId ).hide();
         }
 
         /**
@@ -380,7 +373,7 @@
             stopInactivityTimer();
             deleteSessionStartTime();
 
-            $('#' + APPLICATION_ID + '-dialog').hide();
+            $('#' + settings.applicationId + '-dialog').hide();
 
             window.location.href = getLogoutUrl();
         }
@@ -394,7 +387,7 @@
 
             restartInactivityTimer();
 
-            $(document).on(ACTIVITY_EVENTS, activityHandler);
+            $(document).on(settings.activityEvents, activityHandler);
 
             hideDialog();
         }
@@ -411,7 +404,7 @@
 
             flushLocalStorage();
 
-            $(document).on(ACTIVITY_EVENTS, activityHandler);
+            $(document).on(settings.activityEvents, activityHandler);
 
             createDialog();
             startHeartbeatTimer();

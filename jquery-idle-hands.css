@@ -1,6 +1,5 @@
 #jquery-idle-hands {
     display: none;
-    z-index: 1000 !important;
     margin: 0 !important;
     padding: 0 !important;
     font-family: 'Roboto', 'Verdana', sans-serif !important;
@@ -17,7 +16,7 @@
     right: 0 !important;
     bottom: 0 !important;
     background-color: rgba(0,0,0,0.25) !important;
-    z-index: 1 !important;
+    z-index: 1001 !important;
     margin: 0 !important;
     margin: 0 !important;
 }
@@ -27,7 +26,7 @@
     top: 50% !important;
     left: 50% !important;
     transform: translate(-50%, -50%) !important;
-    z-index: 2 !important;
+    z-index: 1002 !important;
     background-color: #ffffff !important;
     border-radius: 4px !important;
     padding: 4px !important;

@@ -56,7 +56,9 @@
          */
         let startHeartbeatTimer = function () {
             heartbeatTimer = setInterval(
-                heartbeat(settings.heartbeatUrl),
+                function () {
+                    heartbeat(settings.heartbeatUrl);
+                },
                 (settings.heartRate * 1000)
             );
         }

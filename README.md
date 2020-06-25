@@ -37,6 +37,7 @@ A jQuery plugin for managing user inactivity timeoutes across browsers windows.
 |`dialogMessage`|`'Your session is about to expire due to inactivity.'`|This is the message that appears inside of the inactivity dialog above the timer.|
 |`dialogTimeRemainingLabel`|`'Time remaining'`| This is the message that appears in the inactivity dialog before the number of seconds remaining.|
 |`dialogTitle`|`'Session Expiration Warning'`|This is the message that appears at the very top of the inactivity dialog.|
+|`heartbeatCallback`|`(function (data, textStatus, jqXHR) {})`|This is the function that will be called after every successful request to the heartbeat URL. Note that the following parameters are passed in from the `$.get()` request: `data`, `textStatus`, `jqXHR`.|
 |`heartbeatUrl`|`window.location.href`|This is the "keep-alive" URL. Idle Hands will make an AJAX request to this URL once every `heartRate` number of seconds. This can be used to prevent your application session from expiring before the inactivity timer finishes counting down.|
 |`heartRate`|`300`|This is how often Idle Hands will make an AJAX request to `heartbeatUrl`.|
 |`inactivityLogoutUrl`|`'https://www.google.com'`|This is the URL that users will be redirected to if the inactivity dialog timer reaches 0 seconds.|

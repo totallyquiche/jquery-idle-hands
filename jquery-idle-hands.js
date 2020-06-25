@@ -10,6 +10,7 @@
             dialogMessage: 'Your session is about to expire due to inactivity.',
             dialogTimeRemainingLabel: 'Time remaining',
             dialogTitle: 'Session Expiration Warning',
+            heartbeatCallback: (function (data, textStatus, jqXHR) {}),
             heartbeatUrl: window.location.href,
             heartRate: 300,
             inactivityLogoutUrl: 'https://www.google.com',
@@ -47,7 +48,9 @@
          * @param string heartbeat_url
          */
         let heartbeat = function (heartbeat_url) {
-            $.get(heartbeat_url);
+            $.get(heartbeat_url, function(data, textStatus, jqXHR) {
+                settings.heartbeatCallback(data, textStatus, jqXHR);
+            });
         }
 
         /**

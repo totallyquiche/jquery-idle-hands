@@ -1,9 +1,18 @@
 # Idle Hands
-A jQuery plugin for managing user inactivity timeoutes across browsers windows.
+A jQuery plugin for managing user inactivity timeouts across browsers windows.
 
 ## Requirements
 * [jQuery](https://jquery.com/) - Idle Hands uses the jQuery library to more easily interact with the DOM and make ajax calls.
 * [Basil.js](https://wisembly.github.io/basil.js/) - Idle Hands uses Basil.js as a `localStorage` wrapper to more easily persist data across browser windows and tabs.
+
+## Compatibility
+
+As of 06/2020, Idle Hands has been tested the latest versions of the following browsers:
+* Firefox
+* Google Chrome
+* Safari
+* Internet Explorer
+* Edge
 
 ## Usage
 ```html

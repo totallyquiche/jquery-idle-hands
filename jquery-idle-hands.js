@@ -10,6 +10,7 @@
             dialogMessage: 'Your session is about to expire due to inactivity.',
             dialogTimeRemainingLabel: 'Time remaining',
             dialogTitle: 'Session Expiration Warning',
+            documentTitle: null,
             heartbeatCallback: (function (data, textStatus, jqXHR) {}),
             heartbeatUrl: window.location.href,
             heartRate: 300,
@@ -26,6 +27,7 @@
 
         // Set some fallback settings
 
+        settings.documentTitle = settings.documentTitle || settings.dialogTitle;
         settings.localStoragePrefix = settings.localStoragePrefix || settings.applicationId;
         settings.manualLogoutUrl = settings.manualLogoutUrl || settings.inactivityLogoutUrl;
 
@@ -298,7 +300,7 @@
          * Shows the dialog window.
          */
         let showDialog = function () {
-            document.title = settings.dialogTitle;
+            document.title = settings.documentTitle;
 
             $('#jquery-idle-hands').show(function () {
                 $('#jquery-idle-hands button').first().focus();

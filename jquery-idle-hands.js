@@ -11,7 +11,7 @@
             dialogTimeRemainingLabel: 'Time remaining',
             dialogTitle: 'Session Expiration Warning',
             documentTitle: null,
-            heartbeatCallback: (function (data, textStatus, jqXHR) {}),
+            heartbeatCallback: null,
             heartbeatUrl: window.location.href,
             heartRate: 300,
             inactivityLogoutUrl: 'https://www.google.com',
@@ -51,7 +51,9 @@
          */
         let heartbeat = function (heartbeat_url) {
             $.get(heartbeat_url, function(data, textStatus, jqXHR) {
-                settings.heartbeatCallback(data, textStatus, jqXHR);
+                if ($.isFunction(settings.heartbeatCallback)) {
+                    settings.heartbeatCallback(data, textStatus, jqXHR);
+                }
             });
         }
 

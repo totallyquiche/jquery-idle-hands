@@ -20,9 +20,7 @@
                     dialogTitle: 'Logging out...',
                     documentTitle: 'Warning',
                     heartbeatCallback: (function (data, textStatus, jqXHR) {
-                        if (textStatus !== 'success') {
-                            window.location.href = 'https://www.google.com';
-                        }
+                        console.log('pulse');
                     }),
                     heartbeatUrl: window.location.href,
                     heartRate: 10,

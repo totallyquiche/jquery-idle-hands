@@ -155,14 +155,14 @@
         /**
          * Set the wrapper used to manage local storage.
          */
-         let initializeLocalStorage = function () {
+        let initializeLocalStorage = function () {
             let config = {
-              namespace: settings.localStoragePrefix,
-              keyDelimiter: '.'
+                namespace: settings.localStoragePrefix,
+                keyDelimiter: '.'
             };
 
             localStorage.basil = new window.Basil(config);
-         }
+        }
 
          /**
           * Set a value in local storage.
@@ -170,36 +170,36 @@
           * @param String key
           * @param mixed  value
           */
-         localStorage.set = function (key, value) {
+        localStorage.set = function (key, value) {
             localStorage.basil.set(key, value);
-         }
+        }
 
-         /**
-          * Retrieve a value from local storage.
-          *
-          * @param String key
-          *
-          * @return mixed
-          */
-         localStorage.get = function (key) {
+        /**
+         * Retrieve a value from local storage.
+         *
+         * @param String key
+         *
+         * @return mixed
+         */
+        localStorage.get = function (key) {
             return localStorage.basil.get(key);
-         }
+        }
 
-         /**
-          * Removes a value from local storage by key.
-          *
-          * @param String key
-          */
-         localStorage.remove = function (key) {
+        /**
+         * Removes a value from local storage by key.
+         *
+         * @param String key
+         */
+        localStorage.remove = function (key) {
             localStorage.basil.remove(key);
-         }
+        }
 
-         /**
-          * Clear all values from local storage.
-          */
-         localStorage.flush = function () {
+        /**
+         * Clear all values from local storage.
+         */
+        localStorage.flush = function () {
             localStorage.basil.reset();
-          }
+        }
 
         /**
          * Sets the session start time in local storage.
@@ -233,25 +233,25 @@
          *
          * @return String
          */
-         let setLogoutUrl = function (logoutUrl) {
+        let setLogoutUrl = function (logoutUrl) {
             localStorage.set('logoutUrl', logoutUrl);
-         }
+        }
 
         /**
          * Retrieves the logout URL from local storage.
          *
          * @return String
          */
-         let getLogoutUrl = function () {
+        let getLogoutUrl = function () {
             return localStorage.get('logoutUrl');
-         }
+        }
 
          /**
           * Clears values saved in local storage.
           */
-          let flushLocalStorage = function () {
+        let flushLocalStorage = function () {
             localStorage.flush();
-          }
+        }
 
         /* -------------------------------------------------- */
         // DIALOG

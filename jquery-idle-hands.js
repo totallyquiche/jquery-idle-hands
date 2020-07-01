@@ -87,27 +87,30 @@
          */
         let checkInactivity = function () {
             let sessionStartTime = getSessionStartTime();
-            let elapsedSeconds = Math.floor(((new Date()).getTime() - sessionStartTime) / 1000);
-            let remainingSeconds = (settings.maxInactivitySeconds - elapsedSeconds);
-            let secondsLabel = (remainingSeconds == 1) ? 'second' : 'seconds';
 
-            $('#jquery-idle-hands-time-remaining').text(
-                remainingSeconds + ' ' + secondsLabel
-            );
+            if (sessionStartTime) {
+                let elapsedSeconds = Math.floor(((new Date()).getTime() - sessionStartTime) / 1000);
+                let remainingSeconds = (settings.maxInactivitySeconds - elapsedSeconds);
+                let secondsLabel = (remainingSeconds == 1) ? 'second' : 'seconds';
 
-            // If we are over our inactivity limit or the session has been cleared,
-            // log the user out; otherwise, if we are within the inactivity dialog
-            // duration, stop tracking activity and show the dialog; otherwise,
-            // hide the dialog.
+                $('#jquery-idle-hands-time-remaining').text(
+                    remainingSeconds + ' ' + secondsLabel
+                );
 
-            if ((elapsedSeconds > settings.maxInactivitySeconds) || !sessionStartTime) {
-                logout(settings.inactivityLogoutUrl);
-            } else if (remainingSeconds <= settings.inactivityDialogDuration) {
-                $(document).off(settings.activityEvents, activityHandler);
+                // If we are over our inactivity limit or the session has been cleared,
+                // log the user out; otherwise, if we are within the inactivity dialog
+                // duration, stop tracking activity and show the dialog; otherwise,
+                // hide the dialog.
 
-                showDialog();
-            } else {
-                hideDialog();
+                if ((elapsedSeconds > settings.maxInactivitySeconds)) {
+                    logout(settings.inactivityLogoutUrl);
+                } else if (remainingSeconds <= settings.inactivityDialogDuration) {
+                    $(document).off(settings.activityEvents, activityHandler);
+
+                    showDialog();
+                } else {
+                    hideDialog();
+                }
             }
         }
 

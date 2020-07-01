@@ -186,15 +186,6 @@
         }
 
         /**
-         * Removes a value from local storage by key.
-         *
-         * @param String key
-         */
-        localStorage.remove = function (key) {
-            localStorage.basil.remove(key);
-        }
-
-        /**
          * Clear all values from local storage.
          */
         localStorage.flush = function () {
@@ -219,13 +210,6 @@
          */
         let getSessionStartTime = function () {
             return localStorage.get('sessionStartTime');
-        }
-
-        /**
-         * Deletes the session start time from local storage.
-         */
-        let deleteSessionStartTime = function () {
-            localStorage.remove('sessionStartTime');
         }
 
         /**
@@ -337,7 +321,6 @@
 
             stopHeartbeatTimer();
             stopInactivityTimer();
-            deleteSessionStartTime();
 
             $('#jquery-idle-hands-dialog').hide();
 

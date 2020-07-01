@@ -86,9 +86,12 @@
          * out, displays the inactivity dialog, or hides the inactivity dialog.
          */
         let checkInactivity = function () {
+            let loggedOutStatus = getLoggedOutStatus();
             let sessionStartTime = getSessionStartTime();
 
-            if (sessionStartTime) {
+            if (loggedOutStatus) {
+                logout(settings.inactivityLogoutUrl);
+            } else if (sessionStartTime) {
                 let elapsedSeconds = Math.floor(((new Date()).getTime() - sessionStartTime) / 1000);
                 let remainingSeconds = (settings.maxInactivitySeconds - elapsedSeconds);
                 let secondsLabel = (remainingSeconds == 1) ? 'second' : 'seconds';
@@ -237,6 +240,24 @@
             localStorage.flush();
         }
 
+        /**
+         * Sets the logged out status in local storage.
+         *
+         * @param Boolean
+         */
+        let setLoggedOutStatus = function (loggedOutStatus) {
+            localStorage.set('loggedOutStatus', loggedOutStatus);
+        }
+
+        /**
+         * Gets the logged out status from local storage.
+         *
+         * @return Boolean
+         */
+        let getLoggedOutStatus = function () {
+            return localStorage.get('loggedOutStatus');
+        }
+
         /* -------------------------------------------------- */
         // DIALOG
         /* -------------------------------------------------- */
@@ -315,6 +336,8 @@
          * @param String logoutUrl
          */
         let logout = function (logoutUrl) {
+            setLoggedOutStatus(true);
+
             if (!getLogoutUrl()) {
                 setLogoutUrl(logoutUrl);
             }

@@ -90,7 +90,7 @@
             let sessionStartTime = getSessionStartTime();
 
             if (loggedOutStatus) {
-                logout(settings.inactivityLogoutUrl);
+                logout();
             } else if (sessionStartTime) {
                 let elapsedSeconds = Math.floor(((new Date()).getTime() - sessionStartTime) / 1000);
                 let remainingSeconds = (settings.maxInactivitySeconds - elapsedSeconds);
@@ -336,18 +336,20 @@
          * @param String logoutUrl
          */
         let logout = function (logoutUrl) {
-            setLoggedOutStatus(true);
-
-            if (!getLogoutUrl()) {
+            if (logoutUrl) {
                 setLogoutUrl(logoutUrl);
+            } else {
+                logoutUrl = localStorage.get('logoutUrl');
             }
+
+            setLoggedOutStatus(true);
 
             stopHeartbeatTimer();
             stopInactivityTimer();
 
             $('#jquery-idle-hands-dialog').hide();
 
-            window.location.href = getLogoutUrl();
+            window.location.href = logoutUrl;
         }
 
         /**

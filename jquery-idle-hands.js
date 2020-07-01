@@ -86,28 +86,34 @@
          * out, displays the inactivity dialog, or hides the inactivity dialog.
          */
         let checkInactivity = function () {
+            let loggedOutStatus = getLoggedOutStatus();
             let sessionStartTime = getSessionStartTime();
-            let elapsedSeconds = Math.floor(((new Date()).getTime() - sessionStartTime) / 1000);
-            let remainingSeconds = (settings.maxInactivitySeconds - elapsedSeconds);
-            let secondsLabel = (remainingSeconds == 1) ? 'second' : 'seconds';
 
-            $('#jquery-idle-hands-time-remaining').text(
-                remainingSeconds + ' ' + secondsLabel
-            );
-
-            // If we are over our inactivity limit or the session has been cleared,
-            // log the user out; otherwise, if we are within the inactivity dialog
-            // duration, stop tracking activity and show the dialog; otherwise,
-            // hide the dialog.
-
-            if ((elapsedSeconds > settings.maxInactivitySeconds) || !sessionStartTime) {
+            if (loggedOutStatus) {
                 logout(settings.inactivityLogoutUrl);
-            } else if (remainingSeconds <= settings.inactivityDialogDuration) {
-                $(document).off(settings.activityEvents, activityHandler);
+            } else if (sessionStartTime) {
+                let elapsedSeconds = Math.floor(((new Date()).getTime() - sessionStartTime) / 1000);
+                let remainingSeconds = (settings.maxInactivitySeconds - elapsedSeconds);
+                let secondsLabel = (remainingSeconds == 1) ? 'second' : 'seconds';
 
-                showDialog();
-            } else {
-                hideDialog();
+                $('#jquery-idle-hands-time-remaining').text(
+                    remainingSeconds + ' ' + secondsLabel
+                );
+
+                // If we are over our inactivity limit or the session has been cleared,
+                // log the user out; otherwise, if we are within the inactivity dialog
+                // duration, stop tracking activity and show the dialog; otherwise,
+                // hide the dialog.
+
+                if ((elapsedSeconds > settings.maxInactivitySeconds)) {
+                    logout(settings.inactivityLogoutUrl);
+                } else if (remainingSeconds <= settings.inactivityDialogDuration) {
+                    $(document).off(settings.activityEvents, activityHandler);
+
+                    showDialog();
+                } else {
+                    hideDialog();
+                }
             }
         }
 
@@ -152,14 +158,14 @@
         /**
          * Set the wrapper used to manage local storage.
          */
-         let initializeLocalStorage = function () {
+        let initializeLocalStorage = function () {
             let config = {
-              namespace: settings.localStoragePrefix,
-              keyDelimiter: '.'
+                namespace: settings.localStoragePrefix,
+                keyDelimiter: '.'
             };
 
             localStorage.basil = new window.Basil(config);
-         }
+        }
 
          /**
           * Set a value in local storage.
@@ -167,36 +173,27 @@
           * @param String key
           * @param mixed  value
           */
-         localStorage.set = function (key, value) {
+        localStorage.set = function (key, value) {
             localStorage.basil.set(key, value);
-         }
+        }
 
-         /**
-          * Retrieve a value from local storage.
-          *
-          * @param String key
-          *
-          * @return mixed
-          */
-         localStorage.get = function (key) {
+        /**
+         * Retrieve a value from local storage.
+         *
+         * @param String key
+         *
+         * @return mixed
+         */
+        localStorage.get = function (key) {
             return localStorage.basil.get(key);
-         }
+        }
 
-         /**
-          * Removes a value from local storage by key.
-          *
-          * @param String key
-          */
-         localStorage.remove = function (key) {
-            localStorage.basil.remove(key);
-         }
-
-         /**
-          * Clear all values from local storage.
-          */
-         localStorage.flush = function () {
+        /**
+         * Clear all values from local storage.
+         */
+        localStorage.flush = function () {
             localStorage.basil.reset();
-          }
+        }
 
         /**
          * Sets the session start time in local storage.
@@ -219,36 +216,47 @@
         }
 
         /**
-         * Deletes the session start time from local storage.
-         */
-        let deleteSessionStartTime = function () {
-            localStorage.remove('sessionStartTime');
-        }
-
-        /**
          * Sets the logout URL in local storage.
          *
          * @return String
          */
-         let setLogoutUrl = function (logoutUrl) {
+        let setLogoutUrl = function (logoutUrl) {
             localStorage.set('logoutUrl', logoutUrl);
-         }
+        }
 
         /**
          * Retrieves the logout URL from local storage.
          *
          * @return String
          */
-         let getLogoutUrl = function () {
+        let getLogoutUrl = function () {
             return localStorage.get('logoutUrl');
-         }
+        }
 
          /**
           * Clears values saved in local storage.
           */
-          let flushLocalStorage = function () {
+        let flushLocalStorage = function () {
             localStorage.flush();
-          }
+        }
+
+        /**
+         * Sets the logged out status in local storage.
+         *
+         * @param Boolean
+         */
+        let setLoggedOutStatus = function (loggedOutStatus) {
+            localStorage.set('loggedOutStatus', loggedOutStatus);
+        }
+
+        /**
+         * Gets the logged out status from local storage.
+         *
+         * @return Boolean
+         */
+        let getLoggedOutStatus = function () {
+            return localStorage.get('loggedOutStatus');
+        }
 
         /* -------------------------------------------------- */
         // DIALOG
@@ -328,13 +336,14 @@
          * @param String logoutUrl
          */
         let logout = function (logoutUrl) {
+            setLoggedOutStatus(true);
+
             if (!getLogoutUrl()) {
                 setLogoutUrl(logoutUrl);
             }
 
             stopHeartbeatTimer();
             stopInactivityTimer();
-            deleteSessionStartTime();
 
             $('#jquery-idle-hands-dialog').hide();
 

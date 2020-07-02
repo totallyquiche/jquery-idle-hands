@@ -178,6 +178,10 @@
             };
 
             localStorage.basil = new window.Basil(config);
+
+            // Clear any previously set values
+
+            flushLocalStorage();
         }
 
          /**
@@ -377,6 +381,8 @@
         let stayLoggedIn = function () {
             flushLocalStorage();
 
+            setLoggedOutStatus(false);
+
             restartInactivityTimer();
 
             $(document).on(settings.activityEvents, activityHandler);
@@ -392,8 +398,9 @@
          * Initializes Idle Hands.
          */
         let initialize = function () {
-            flushLocalStorage();
             initializeLocalStorage();
+
+            setLoggedOutStatus(false);
 
             $(document).on(settings.activityEvents, activityHandler);
 

@@ -260,7 +260,7 @@
         /**
          * Sets the logged out status in local storage.
          *
-         * @param boolean
+         * @param boolean loggedOutStatus
          */
         let setLoggedOutStatus = function (loggedOutStatus) {
             localStorage.set('loggedOutStatus', loggedOutStatus);

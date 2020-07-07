@@ -1,0 +1,38 @@
+<!doctype html>
+
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>Idle Hands</title>
+    </head>
+    <body>
+        <link rel="stylesheet" type="text/css" href="../jquery-idle-hands.css" />
+        <script src="assets/js/basil.js-0.4.6/build/basil.js"></script>
+        <script src="assets/js/jquery-3.5.1.min.js"></script>
+        <script src="../jquery-idle-hands.js"></script>
+        <script>
+            $(function () {
+                $.idleHands({
+                    activityEvents: 'click',
+                    applicationId: 'my_application',
+                    dialogMessage: 'Are you still there?',
+                    dialogTimeRemainingLabel: 'Time until logout',
+                    dialogTitle: 'Logging out...',
+                    documentTitle: 'Warning',
+                    heartbeatCallback: (function (data, textStatus, jqXHR) {
+                        console.log('pulse');
+                    }),
+                    heartbeatUrl: window.location.href,
+                    heartRate: 10,
+                    inactivityLogoutUrl: 'https://www.google.com',
+                    inactivityDialogDuration: 45,
+                    localStoragePrefix: 'my_application',
+                    logoutNowButtonText: "I'm done.",
+                    manualLogoutUrl: null,
+                    maxInactivitySeconds: 60,
+                    stayLoggedInButtonText: "I'm still here!"
+                });
+            });
+        </script>
+    </body>
+</html>

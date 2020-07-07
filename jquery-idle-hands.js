@@ -250,9 +250,9 @@
             return localStorage.get('logoutUrl');
         }
 
-         /**
-          * Clears values saved in local storage.
-          */
+        /**
+         * Clears values saved in local storage.
+         */
         let flushLocalStorage = function () {
             localStorage.flush();
         }

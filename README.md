@@ -7,7 +7,7 @@ A jQuery plugin for managing user inactivity timeouts across browsers windows.
 
 ## Compatibility
 
-As of 06/2020, Idle Hands has been tested the latest versions of the following browsers:
+As of 06/2020, Idle Hands has been tested on the latest versions of the following browsers:
 * Firefox
 * Google Chrome
 * Safari
